@@ -1,0 +1,10 @@
+# docs/architecture/contours.yaml: pin контуров проекта (ENV-10).
+# Схема: schemas/contours-pin.schema.json
+schema_version: 1
+project: example-project            # имя проекта, нижний регистр
+registry_version: v0.1.0            # git-тег Angainor, с которым сверяется реестр
+
+environments:
+  - env: cnt.dev                    # <контур>.<стадия>; контур должен быть в реестре
+    purpose: локальная разработка
+    data_classes: [synthetic]       # подмножество allowed_data_classes контура

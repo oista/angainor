@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contour-registry.schema.json",
+  "title": "Angainor contour registry",
+  "description": "Реестр контуров (канон 10-contours). Перекрёстные ссылки (data_classes, promotion, уникальность кодов) проверяет scripts/check_contours.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "data_classes", "contours", "promotion"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "data_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "contours": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/contour" }
+    },
+    "promotion": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "via"],
+        "properties": {
+          "from": { "$ref": "#/$defs/env" },
+          "to": { "$ref": "#/$defs/env" },
+          "via": { "$ref": "#/$defs/delivery_method" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stage": { "enum": ["dev", "test", "prod"] },
+    "env": {
+      "type": "string",
+      "pattern": "^[a-z]{3}\\.(dev|test|prod)$"
+    },
+    "delivery_method": {
+      "enum": ["git-tag", "github-actions", "gitlab-ci", "airgap-bundle", "manual"]
+    },
+    "contour": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code", "name", "kind", "owner", "status", "stages",
+        "network", "delivery", "allowed_data_classes", "secrets", "agents"
+      ],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[a-z]{3}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["workstation", "server", "gateway"] },
+        "owner": { "type": "string", "minLength": 1 },
+        "notes": { "type": "string" },
+        "status": { "enum": ["active", "retired"] },
+        "stages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/stage" }
+        },
+        "network": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["zone", "access"],
+          "properties": {
+            "zone": { "type": "string", "minLength": 1 },
+            "address": { "type": "string", "minLength": 1 },
+            "access": { "type": "string", "minLength": 1 },
+            "airgap": { "type": "boolean" }
+          }
+        },
+        "delivery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ci", "method"],
+          "properties": {
+            "ci": { "enum": ["github-actions", "gitlab-ci", "none"] },
+            "method": { "$ref": "#/$defs/delivery_method" }
+          }
+        },
+        "allowed_data_classes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
+        },
+        "secrets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["store"],
+          "properties": {
+            "store": { "type": "string", "minLength": 1 },
+            "notes": { "type": "string" }
+          }
+        },
+        "agents": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowed_tools", "human_in_loop"],
+          "properties": {
+            "allowed_tools": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "human_in_loop": { "enum": ["never", "on_write", "always"] }
+          }
+        },
+        "backup": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "reason_if_not": { "type": "string" }
+          }
+        },
+        "post_deploy_check": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "reason_if_not": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

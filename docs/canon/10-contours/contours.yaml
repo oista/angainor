@@ -1,0 +1,159 @@
+# Реестр контуров Angainor (канон 10-contours, ENV-1).
+# Черновик: значения TODO нужно заменить реальными данными.
+# check_contours.py должен падать, пока в файле есть TODO.
+# Пометка «подтвердить» = значение выведено из описания владельца, а не сказано прямо.
+schema_version: 1
+
+# Стартовый список классов данных (открытый вопрос 2 в 10-contours.md).
+data_classes:
+  - id: synthetic
+    description: Сгенерированные и тестовые данные без реальных источников.
+  - id: public
+    description: Открытые данные, которые можно свободно хранить и показывать.
+  - id: own
+    description: Собственные данные владельца, не связанные с работодателем.
+  - id: licensed
+    description: Данные по лицензии третьей стороны (например, рыночные); условия хранения и показа ограничены.
+  - id: employer
+    description: Данные и артефакты работодателя.
+
+contours:
+  - code: cnt
+    name: Centurion
+    kind: workstation
+    owner: bons1                       # подтвердить
+    status: active
+    stages: [dev]
+    notes: Рабочий ПК, основная разработка.
+    network:
+      zone: TODO
+      access: TODO
+    delivery:
+      ci: TODO                         # github-actions | gitlab-ci | none
+      method: git-tag
+    allowed_data_classes: [synthetic, public, own]   # TODO: подтвердить; принадлежит ли ПК работодателю
+    secrets:
+      store: TODO
+    agents:
+      allowed_tools: []                # TODO: список разрешённых инструментов
+      human_in_loop: on_write
+
+  - code: lgn
+    name: Legioner
+    kind: workstation
+    owner: bons1                       # подтвердить
+    status: active
+    stages: [dev]                      # подтвердить
+    notes: Ноутбук, станция разработки вне дома.
+    network:
+      zone: TODO                       # вне домашней сети; как попадает домой (VPN через prs/wgn?)
+      access: TODO
+    delivery:
+      ci: TODO
+      method: git-tag
+    allowed_data_classes: [synthetic, public, own]   # TODO: подтвердить; ноутбук выносится из дома
+    secrets:
+      store: TODO
+    agents:
+      allowed_tools: []
+      human_in_loop: on_write
+
+  - code: wgn
+    name: Wangate
+    kind: gateway
+    owner: bons1                       # подтвердить
+    status: active
+    stages: [prod]                     # подтвердить
+    notes: Мини-ПК, входной шлюз домашней сети.
+    network:
+      zone: home-edge
+      address: 192.168.10.1
+      access: TODO
+    delivery:
+      ci: TODO
+      method: TODO
+    allowed_data_classes: [TODO]       # скорее всего только конфигурация и логи сети, без прикладных данных
+    secrets:
+      store: TODO
+    agents:
+      allowed_tools: []
+      human_in_loop: always            # шлюз сети: по умолчанию человек подтверждает всё; подтвердить
+    backup: { required: true }         # подтвердить
+    post_deploy_check: { required: true }   # подтвердить
+
+  - code: prs
+    name: Pharos
+    kind: server
+    owner: bons1                       # подтвердить
+    status: active
+    stages: [prod]                     # подтвердить
+    notes: VPS, публично доступный сервер.
+    network:
+      zone: public-internet
+      address: 45.134.218.129          # публичный IP: см. вопрос о приватности репозитория
+      access: TODO
+    delivery:
+      ci: TODO
+      method: TODO
+    allowed_data_classes: [TODO]       # публичный контур: «own» и «employer» там, скорее всего, недопустимы
+    secrets:
+      store: TODO
+    agents:
+      allowed_tools: []
+      human_in_loop: always            # подтвердить
+    backup: { required: true }         # подтвердить
+    post_deploy_check: { required: true }   # подтвердить
+
+  - code: cst                          # ПРЕДЛОЖЕНИЕ: имя Castrum (римский лагерь), подтвердить или заменить
+    name: Castrum
+    kind: server
+    owner: bons1                       # подтвердить
+    status: active
+    stages: [TODO]                     # dev / test / prod?
+    notes: Домашний сервер приложений.
+    network:
+      zone: home-lan
+      address: 192.168.10.140
+      access: TODO
+    delivery:
+      ci: TODO
+      method: TODO
+    allowed_data_classes: [TODO]
+    secrets:
+      store: TODO
+    agents:
+      allowed_tools: []
+      human_in_loop: on_write
+
+  - code: mxl                          # ПРЕДЛОЖЕНИЕ: от Moexlab, подтвердить
+    name: Moexlab
+    kind: TODO                         # один сервер, несколько машин, виртуальная среда?
+    owner: TODO                        # работодатель или вы как оператор
+    status: active
+    stages: [TODO]
+    notes: >-
+      Рабочий контур без интернета. Образы доставляются по почте.
+      Агенты Claude внутри контура недоступны: артефакты переносит человек.
+    network:
+      zone: employer-isolated
+      access: TODO
+      airgap: true
+    delivery:
+      ci: none
+      method: airgap-bundle
+    allowed_data_classes: [TODO]       # вероятно employer и licensed
+    secrets:
+      store: TODO
+    agents:
+      allowed_tools: []
+      human_in_loop: always
+    backup: { required: TODO }
+    post_deploy_check: { required: TODO }
+
+# Допустимые переходы между средами (ENV-7). Чего здесь нет, того не существует.
+promotion: []
+# Гипотеза для проверки (не принято):
+# - { from: cnt.dev, to: cst.<стадия>, via: git-tag }
+# - { from: lgn.dev, to: cst.<стадия>, via: git-tag }
+# - { from: cst.<стадия>, to: prs.prod, via: TODO }
+# - { from: <среда сборки образа>, to: mxl.<стадия>, via: airgap-bundle }
