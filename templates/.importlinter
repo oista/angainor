@@ -1,0 +1,16 @@
+# canon: QLT-3, ARC-2
+# Каждый контракт — со ссылкой на ADR, который его требует.
+
+[importlinter]
+root_packages =
+    __pkg__
+
+# ADR-NNNN: зависимости направлены к ядру — domain ничего не знает о внешнем мире.
+[importlinter:contract:layers]
+name = __pkg__ layers point inward
+type = layers
+layers =
+    __pkg__.interfaces
+    __pkg__.infrastructure
+    __pkg__.application
+    __pkg__.domain

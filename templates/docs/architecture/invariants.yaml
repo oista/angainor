@@ -1,0 +1,20 @@
+# canon: ARC-1, TST-3
+# Реестр инвариантов проекта. Формат: angainor/schemas/invariant.schema.json.
+# Источник: archpolicy PRODATA (ADR-0043) и матрица инвариантов moex-data-model (ADR-045).
+project: app
+
+invariants:
+  - id: app.INV-001
+    title: "У секретов нет значений по умолчанию"
+    statement: "Переменная с secret: true в config-schema.yaml не имеет default и не может быть пустой при запуске"
+    rationale: "Небезопасное значение по умолчанию попадает в прод незамеченным"
+    adr: ADR-0001
+    severity: critical
+    status: implemented
+    mode: ci_gate
+    checks:
+      - level: L2
+        ref: tests/unit/test_example.py::test_settings_fail_with_empty_secret
+        pass_example: tests/unit/test_example.py::test_settings_pass_with_valid_env
+        fail_example: tests/unit/test_example.py::test_settings_fail_with_empty_secret
+    review_by: "2027-05-01"

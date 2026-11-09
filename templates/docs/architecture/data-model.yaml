@@ -1,0 +1,22 @@
+# canon: DM-1, DM-8
+# Фиксация модели данных, с которой совместим код приложения.
+# Формат: angainor/schemas/data-model-pin.schema.json. Сами модели — в репозитории моделей.
+model_repository: <git-адрес репозитория моделей>
+
+specification:
+  id: moex:specification:moex-dams:0.1
+  version: 5.5.0                       # агрегатная версия схемы DAMS (ADR-051)
+
+packages:
+  - id: moex:implementation:app:0.1.0     # пакет решения; app — заменить на имя приложения
+    role: solution
+    version: 0.1.0
+    revision: <commit sha>
+  - id: moex:implementation:prodata-conceptual-model:0.1
+    role: conceptual
+    version: 0.1.0
+    revision: <commit sha>
+  - id: moex:implementation:moex-enterprise-conceptual-model:0.1
+    role: conceptual
+    version: 0.1.0
+    revision: <commit sha>

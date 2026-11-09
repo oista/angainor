@@ -1,0 +1,24 @@
+# canon: QLT-4, QLT-5
+# Источник: Clavis. CI повторяет те же проверки; pre-commit только экономит время.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: mojibake-check
+        name: испорченная кодировка в русских текстах
+        language: system
+        pass_filenames: false
+        entry: python scripts/check_mojibake.py

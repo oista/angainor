@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/module-passport",
+  "$comment": "canon: ARC-7, ARC-8",
+  "title": "Паспорт модуля (module.toml)",
+  "description": "Источник: module.toml Clavis и module_registry.toml PRODATA (ADR-0013).",
+  "type": "object",
+  "required": [
+    "module"
+  ],
+  "properties": {
+    "module": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "version",
+        "owner",
+        "adr",
+        "enabled"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "owner": {
+          "type": "string",
+          "description": "Репозиторий-владелец"
+        },
+        "package": {
+          "type": "string",
+          "description": "Python-пакет модуля"
+        },
+        "adr": {
+          "type": "string",
+          "pattern": "^ADR-[0-9]{3,4}$",
+          "description": "ADR, разрешивший модуль; enabled=true только при Accepted"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "api_routers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "contract": {
+      "type": "object",
+      "properties": {
+        "produces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Что модуль отдаёт наружу"
+        },
+        "consumes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Что модуль берёт извне"
+        },
+        "version": {
+          "type": "string",
+          "description": "Версия контракта или требование к версии"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

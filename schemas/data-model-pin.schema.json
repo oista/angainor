@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/data-model-pin",
+  "$comment": "canon: DM-1, DM-8",
+  "title": "Фиксация модели данных в приложении (docs/architecture/data-model.yaml)",
+  "description": "Какие пакеты модели и какой версии спецификации DAMS соответствует код приложения. Модели хранятся в репозитории моделей (ADR-058 D7 moex-data-model).",
+  "type": "object",
+  "required": [
+    "model_repository",
+    "specification",
+    "packages"
+  ],
+  "properties": {
+    "model_repository": {
+      "type": "string",
+      "description": "git-адрес репозитория моделей"
+    },
+    "specification": {
+      "type": "object",
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^moex:specification:[a-z0-9-]+:[0-9.]+$"
+        },
+        "version": {
+          "type": "string",
+          "description": "агрегатная версия схемы (ADR-051)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "packages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "version",
+          "revision"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^moex:implementation:[a-z0-9-]+:[0-9.]+$"
+          },
+          "role": {
+            "enum": [
+              "solution",
+              "conceptual"
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string",
+            "description": "коммит git, на котором опубликована эта версия пакета (ADR-002)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contains": {
+        "properties": {
+          "role": {
+            "const": "solution"
+          }
+        }
+      },
+      "minContains": 1,
+      "maxContains": 1,
+      "description": "Ровно один пакет решения и концептуальные пакеты, на которые он опирается"
+    }
+  },
+  "additionalProperties": false
+}

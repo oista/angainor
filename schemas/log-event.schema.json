@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/log-event",
+  "$comment": "canon: LOG-4, LOG-5",
+  "title": "Запись лога (одна JSON-строка на событие)",
+  "description": "Формат строки лога в контейнерах. Пароли, токены и персональные данные не пишутся (LOG-5).",
+  "type": "object",
+  "required": [
+    "ts",
+    "level",
+    "logger",
+    "msg"
+  ],
+  "properties": {
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Время события, ISO 8601 с часовым поясом"
+    },
+    "level": {
+      "enum": [
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ]
+    },
+    "logger": {
+      "type": "string",
+      "description": "Имя логгера = имя модуля (__name__)"
+    },
+    "msg": {
+      "type": "string",
+      "description": "Сообщение для человека"
+    },
+    "service": {
+      "type": "string",
+      "description": "Имя сервиса или приложения"
+    },
+    "version": {
+      "type": "string",
+      "description": "Версия приложения (CI-7)"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Идентификатор операции: запуск job, оценки, импорта"
+    },
+    "request_id": {
+      "type": "string",
+      "description": "Идентификатор HTTP-запроса"
+    },
+    "error_code": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)?\\.[A-Z0-9_]+$",
+      "description": "Код из каталога ошибок (LOG-8)"
+    },
+    "exc": {
+      "type": "string",
+      "description": "Трассировка исключения, только для уровней ERROR и CRITICAL"
+    },
+    "extra": {
+      "type": "object",
+      "description": "Дополнительные поля события"
+    }
+  },
+  "additionalProperties": false
+}

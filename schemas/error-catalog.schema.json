@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/error-catalog",
+  "$comment": "canon: LOG-8, LOG-9",
+  "title": "Каталог ошибок модуля (assets/<module>_errors.json)",
+  "description": "Источник: ADR-0006 PRODATA. Сначала запись в каталог, потом использование в коде.",
+  "type": "object",
+  "required": [
+    "module_id",
+    "version",
+    "errors"
+  ],
+  "properties": {
+    "$comment": {
+      "type": "string"
+    },
+    "module_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "title",
+          "hint"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+\\.[a-z0-9_]+\\.[A-Z0-9_]+$",
+            "description": "{module_id}.{area}.{NAME}; префикс совпадает с module_id"
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning",
+              "info"
+            ]
+          },
+          "title": {
+            "type": "object",
+            "required": [
+              "ru",
+              "en"
+            ],
+            "properties": {
+              "ru": {
+                "type": "string",
+                "minLength": 1
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false,
+            "description": "Что случилось"
+          },
+          "hint": {
+            "type": "object",
+            "required": [
+              "ru",
+              "en"
+            ],
+            "properties": {
+              "ru": {
+                "type": "string",
+                "minLength": 1
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false,
+            "description": "Что делать дальше"
+          },
+          "http_status": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599,
+            "default": 500
+          },
+          "stage": {
+            "type": "string",
+            "description": "Этап, на котором возникает ошибка"
+          },
+          "match": {
+            "type": "object",
+            "properties": {
+              "substrings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "regex": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "description": "Как распознать ошибку по тексту сообщения или вывода"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

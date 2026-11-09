@@ -1,0 +1,18 @@
+# canon: ARC-7, ARC-8
+# Паспорт модуля. Формат: angainor/schemas/module-passport.schema.json.
+# Источник: module.toml Clavis, module_registry.toml PRODATA (ADR-0013).
+
+[module]
+id = "example"
+name = "<Название модуля>"
+version = "0.1.0"
+owner = "<репозиторий>"
+package = "__pkg__"
+adr = "ADR-0001"          # модуль включается только при Accepted ADR
+enabled = false
+capabilities = []
+
+[contract]
+produces = []             # что модуль отдаёт наружу; каждый шов — строка в реестре швов (ARC-7)
+consumes = []             # что берёт извне
+version = "1"

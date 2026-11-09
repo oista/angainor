@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/config-variable",
+  "$comment": "canon: CFG-2, CFG-3, CFG-6, CFG-7",
+  "title": "Схема переменных окружения (docs/architecture/config-schema.yaml)",
+  "description": "Источник: config-schema.yaml PRODATA и паспорт переменной из config-contract Norma.",
+  "type": "object",
+  "required": [
+    "version",
+    "scope",
+    "variables"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "scope",
+          "domain",
+          "type",
+          "required",
+          "secret",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9]*(_[A-Z0-9]+)+$",
+            "description": "ПРЕФИКС_ДОМЕН_ПАРАМЕТР (CFG-2)"
+          },
+          "scope": {
+            "type": "string",
+            "description": "shared или код проекта"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Домен из словаря config-contract Norma: db, neo4j, llm, auth, web, log, …"
+          },
+          "type": {
+            "enum": [
+              "string",
+              "bool",
+              "int",
+              "float",
+              "url",
+              "path",
+              "enum",
+              "secret"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "default": {
+            "description": "Значение по умолчанию; у секретов отсутствует (CFG-6)"
+          },
+          "secret": {
+            "type": "boolean"
+          },
+          "example": {
+            "type": "string",
+            "description": "Безопасный пример для .env.example"
+          },
+          "enum": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "used_by": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Модули, которые читают переменную"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "deprecated": {
+            "type": "boolean",
+            "default": false
+          },
+          "replaced_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Новое имя при переименовании (CFG-7)"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "secret": {
+                  "const": true
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "default"
+                ]
+              }
+            }
+          }
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

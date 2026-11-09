@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/adr-frontmatter",
+  "$comment": "canon: DOC-6, DOC-7, DOC-8",
+  "title": "YAML-шапка ADR",
+  "description": "Машиночитаемая часть ADR. Формат ADR ещё утверждается meta-ADR (см. 07-docs-adr, открытые вопросы).",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "status",
+    "date"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^ADR-[0-9]{4}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "Proposed",
+        "Accepted",
+        "Deprecated",
+        "Superseded"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "deciders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supersedes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ADR-[0-9]{4}$"
+      }
+    },
+    "superseded_by": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ADR-[0-9]{4}$"
+      }
+    },
+    "amends": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^ADR-[0-9]{4}$"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Идентификаторы проверок, подтверждающих решение, или 'manual'"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,25 @@
+{
+  "$comment": "canon: LOG-8. Файл: assets/<module_id>_errors.json. Формат: angainor/schemas/error-catalog.schema.json",
+  "module_id": "example",
+  "version": 1,
+  "errors": [
+    {
+      "code": "example.fetch.UNAVAILABLE",
+      "severity": "error",
+      "title": {
+        "ru": "Внешний сервис недоступен",
+        "en": "External service is unavailable"
+      },
+      "hint": {
+        "ru": "Проверьте, что сервис запущен и адрес в APP_SOURCE_URL верный, затем повторите запуск.",
+        "en": "Check that the service is running and APP_SOURCE_URL is correct, then retry."
+      },
+      "http_status": 502,
+      "stage": "fetch",
+      "match": {
+        "substrings": ["Connection refused"],
+        "regex": []
+      }
+    }
+  ]
+}

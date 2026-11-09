@@ -1,0 +1,54 @@
+# canon: LAY-2, LAY-8, QLT-1, QLT-2, QLT-6, TST-1, TST-6, CI-7
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "<project>"
+version = "0.1.0"                     # единственное место версии (CI-7)
+description = "<одна фраза>"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.3",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "import-linter>=2.0",
+    "pre-commit>=3.7",
+    "pyyaml>=6.0",                     # проверка config-schema.yaml (CFG-3)
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/__pkg__"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "BLE"]
+# Исключения — только точечно по путям и с причиной (QLT-6):
+# [tool.ruff.lint.per-file-ignores]
+# "scripts/*" = ["E402"]  # скрипты добавляют src в sys.path до импорта
+
+[tool.mypy]
+python_version = "3.11"
+strict = true                          # новый пакет — строгий режим с первого дня (QLT-2)
+packages = ["__pkg__"]
+mypy_path = "src"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+timeout = 45
+markers = [
+    "integration: тест с настоящей базой данных (TST-1)",
+]

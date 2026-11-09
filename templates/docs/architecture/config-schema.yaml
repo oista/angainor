@@ -1,0 +1,84 @@
+# canon: CFG-2, CFG-3, CFG-6
+# Схема переменных окружения — источник правды для .env.example, docs/configuration.md и Settings.
+# Формат: angainor/schemas/config-variable.schema.json. APP — заменить на префикс проекта.
+version: "1.0"
+scope: app
+
+variables:
+  - name: PD_ENV
+    scope: shared
+    domain: env
+    type: enum
+    enum: [dev, stage, prod]
+    required: false
+    default: dev
+    secret: false
+    example: dev
+    used_by: [__pkg__.settings]
+    description: "Окружение развёртывания"
+
+  - name: PD_LOG_LEVEL
+    scope: shared
+    domain: log
+    type: enum
+    enum: [DEBUG, INFO, WARNING, ERROR]
+    required: false
+    default: INFO
+    secret: false
+    example: INFO
+    used_by: [__pkg__.logging_setup]
+    description: "Уровень логов"
+
+  - name: PD_LOG_FORMAT
+    scope: shared
+    domain: log
+    type: enum
+    enum: [text, json]
+    required: false
+    default: text
+    secret: false
+    example: json
+    used_by: [__pkg__.logging_setup]
+    description: "Формат логов: json в контейнерах, text локально (LOG-4)"
+
+  - name: APP_DB_URL
+    scope: app
+    domain: db
+    type: url
+    required: true
+    secret: false
+    example: "postgresql://user@localhost:5432/db"
+    used_by: [__pkg__.settings]
+    description: "Строка подключения к Postgres"
+
+  - name: APP_WEB_HOST
+    scope: app
+    domain: web
+    type: string
+    required: false
+    default: "127.0.0.1"
+    secret: false
+    example: "0.0.0.0"
+    used_by: [__pkg__.settings]
+    description: "Адрес, на котором слушает веб-сервер"
+
+  - name: APP_WEB_PORT
+    scope: app
+    domain: web
+    type: int
+    required: false
+    default: 8000
+    secret: false
+    example: "8000"
+    used_by: [__pkg__.settings]
+    description: "Порт веб-сервера"
+
+  - name: APP_WEB_SECRET_KEY
+    scope: app
+    domain: web
+    type: secret
+    required: true
+    secret: true
+    example: ""
+    used_by: [__pkg__.settings]
+    description: "Ключ подписи сессий; значения по умолчанию нет"

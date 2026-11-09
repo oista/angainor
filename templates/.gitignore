@@ -1,0 +1,35 @@
+# canon: LAY-1, CFG-6, CI-9
+# Окружение и секреты
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+.coverage
+
+# Результаты CI и локальных запусков
+.archpolicy/
+reports/
+logs/
+*.sqlite
+
+# Мусор в корне
+/cookies*.txt
+/*.html
+/*_report.txt
+/tmp/
+
+# IDE и Office
+.idea/
+~$*
+~WRL*.tmp
