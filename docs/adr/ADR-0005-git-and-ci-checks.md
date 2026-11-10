@@ -7,7 +7,7 @@ deciders: [Sergey Kuleshov]
 supersedes: []
 superseded_by: []
 amends: [ADR-0004]
-rules: [scripts/check_rules.py, scripts/build_rules.py, scripts/rules_gitci.py, scripts/check_commit_msg.py]
+rules: [scripts/check_rules.py, scripts/build_rules.py, scripts/rules_gitci.py, tools/check_commit_msg.py]
 ---
 
 # ADR-0005: Проверки git и CI — одна реализация, три места подключения
@@ -21,7 +21,7 @@ CI-1 требует, чтобы в CI не было логики, которой
 
 ## Решение
 
-1. **Три слоя.** Норма — в каноне (`docs/canon/06-ci-cd.md`), без привязки к платформе. Реализация — один Python-скрипт в `scripts/` Angainor. Подключение — поле `enforce` правила реестра.
+1. **Три слоя.** Норма — в каноне (`docs/canon/06-ci-cd.md`), без привязки к платформе. Реализация — один Python-скрипт в `tools/` Angainor (то, что копируется в проекты; `scripts/` — внутренние инструменты самого реестра). Подключение — поле `enforce` правила реестра.
 2. **Расширение `enforce`.** К событиям агента добавляются события git (`pre-commit`, `commit-msg`, `pre-push`) и `ci` с полями `stage` (стадия) и `when` (`pull_request` или `push` в main/master). Ключ называется `when`, а не `on`, потому что в YAML 1.1 `on` читается как булево значение. В `args` доступны `{project}`, `{arg1}` (первый аргумент git-хука) и `{pr_range}` (диапазон коммитов PR).
 3. **Инструменты копируются в проект** в `.angainor/tools/` с пометкой «generated» и могут импортировать только стандартную библиотеку (проверяет `check_rules.py`): в проекте нет зависимости от Angainor во время выполнения.
 4. **Доставка git-хуков задаётся профилем:** `git_hooks: githooks` (по умолчанию) создаёт исполняемые файлы `.githooks/<событие>`; `git_hooks: pre-commit` вставляет блок между метками `# angainor:begin` и `# angainor:end` в существующий `.pre-commit-config.yaml`, не трогая остальное. Рукописный файл в `.githooks/` без пометки «generated» не перезаписывается — сборка сообщает об ошибке.

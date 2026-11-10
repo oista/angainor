@@ -15,7 +15,7 @@
 - 14 общих правил: AGT-1…8, DOC-4/5/7/11, LAY-1, CI-8.
 - `scripts/check_rules.py` и `scripts/build_rules.py`: проверка реестра и проекции в `.cursor/rules/*.mdc`, `AGENTS.md`.
 - Хуки Cursor через поле `enforce` (ADR-0004): `tools/plan_name_hook.py`, генерация `.cursor/hooks.json`.
-- Проверки git и CI через `enforce` (ADR-0005): `.githooks` или блок в `.pre-commit-config.yaml`, workflow `angainor-<stage>.yml`, `scripts/check_commit_msg.py` (CI-8).
+- Проверки git и CI через `enforce` (ADR-0005): `.githooks` или блок в `.pre-commit-config.yaml`, workflow `angainor-<stage>.yml`, `tools/check_commit_msg.py` (CI-8).
 - Карантин старых правил проекта (`.cursor/_quarantine/<дата>/` с `MANIFEST.md`) и его проверка.
 - Профили Clavis и Isthmus.
 

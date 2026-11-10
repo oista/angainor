@@ -12,7 +12,7 @@
 | [AGT-6](../rules/shared/agent/AGT-6-ci-watch.md) | Следить за CI после push | Accepted | shared | ○ on_request | пожелание | CI-5 |
 | [AGT-7](../rules/shared/agent/AGT-7-multi-pr-series.md) | Серия PR: одна тема на PR | Accepted | shared | ○ on_request | пожелание | CI-5 |
 | [AGT-8](../rules/shared/agent/AGT-8-before-commit-pr.md) | Перед коммитом и PR | Accepted | shared | ○ on_request | пожелание | CI-1, DOC-1 |
-| [CI-8](../rules/shared/vcs/CI-8-conventional-commits.md) | Сообщения коммитов — Conventional Commits | Accepted | shared | ● always | `angainor:scripts/check_commit_msg.py` | CI-8 |
+| [CI-8](../rules/shared/vcs/CI-8-conventional-commits.md) | Сообщения коммитов — Conventional Commits | Accepted | shared | ● always | `angainor:tools/check_commit_msg.py` | CI-8 |
 | [DOC-11](../rules/shared/docs/DOC-11-aligned-tables.md) | Таблицы выровнены | Proposed | shared | ◐ globs | пожелание | — |
 | [DOC-4](../rules/shared/docs/DOC-4-new-term-in-model-or-glossary.md) | Новый термин — в модель или глоссарий | Accepted | shared | ◐ globs | пожелание | DOC-4 |
 | [DOC-5](../rules/shared/docs/DOC-5-serial-folders.md) | Серийные папки: шаблон и индекс | Accepted | shared | ◐ globs | пожелание | DOC-5 |

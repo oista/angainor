@@ -338,16 +338,16 @@ def test_matcher_only_for_tool_events(root):
     assert any("matcher" in e for e in errors(root))
 
 
-GITCI_ENFORCE = ("[{'event': 'commit-msg', 'tool': 'scripts/check_commit_msg.py', 'args': ['{arg1}']},"
-                 " {'event': 'ci', 'stage': 'commits', 'when': 'pull_request', 'tool': 'scripts/check_commit_msg.py',"
+GITCI_ENFORCE = ("[{'event': 'commit-msg', 'tool': 'tools/check_commit_msg.py', 'args': ['{arg1}']},"
+                 " {'event': 'ci', 'stage': 'commits', 'when': 'pull_request', 'tool': 'tools/check_commit_msg.py',"
                  " 'args': ['--range', '{pr_range}']}]")
 
 
 def gitci_root(root: Path, mode: str | None = None) -> Path:
-    (root / "scripts").mkdir()
-    shutil.copy(REAL / "scripts" / "check_commit_msg.py", root / "scripts" / "check_commit_msg.py")
+    (root / "tools").mkdir()
+    shutil.copy(REAL / "tools" / "check_commit_msg.py", root / "tools" / "check_commit_msg.py")
     path = root / "rules/shared/vcs/CI-8-commits.md"
-    write_rule(root, "rules/shared/vcs/CI-8-commits.md", id="CI-8", title="Коммиты", check="angainor:scripts/check_commit_msg.py")
+    write_rule(root, "rules/shared/vcs/CI-8-commits.md", id="CI-8", title="Коммиты", check="angainor:tools/check_commit_msg.py")
     path.write_text(path.read_text(encoding="utf-8").replace("---\n\n#", f"enforce: {GITCI_ENFORCE}\n---\n\n#", 1), encoding="utf-8")
     write_profile(root, "demo", "  CI-8: true\n", repo="demo")
     if mode:
@@ -408,7 +408,7 @@ def test_ci_requires_stage_and_tool_must_be_stdlib_only(root):
     p = root / "rules/shared/vcs/CI-8-commits.md"
     p.write_text(p.read_text(encoding="utf-8").replace("'stage': 'commits', ", "", 1), encoding="utf-8")
     assert any("stage" in e for e in errors(root))
-    (root / "scripts" / "check_commit_msg.py").write_text("import yaml\n", encoding="utf-8")
+    (root / "tools" / "check_commit_msg.py").write_text("import yaml\n", encoding="utf-8")
     assert any("стандартной библиотеки" in e and "yaml" in e for e in errors(root))
 
 
