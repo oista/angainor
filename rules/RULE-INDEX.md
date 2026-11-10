@@ -5,6 +5,7 @@
 | ID | Название | Статус | Область | Режим | Проверка | Норма |
 | --- | --- | --- | --- | --- | --- | --- |
 | [AGT-1](../rules/shared/agent/AGT-1-authority-order.md) | Порядок прав источников | Accepted | shared | ● always | пожелание | DOC-3 |
+| [AGT-10](../rules/shared/agent/AGT-10-small-pr.md) | PR маленький и про одно | Accepted | shared | ○ on_request | `angainor:tools/check_pr_size.py` | CI-5 |
 | [AGT-2](../rules/shared/agent/AGT-2-autonomy-limits.md) | Границы автономии | Proposed | shared | ● always | пожелание | — |
 | [AGT-3](../rules/shared/agent/AGT-3-fix-dialog-and-plans.md) | Фиксация диалога и планов | Accepted | shared | ○ on_request | пожелание | — |
 | [AGT-4](../rules/shared/agent/AGT-4-plan-name.md) | Имя плана — «Проект: тема» | Accepted | shared | ◐ globs | `angainor:tools/plan_name_hook.py` | — |
@@ -12,6 +13,7 @@
 | [AGT-6](../rules/shared/agent/AGT-6-ci-watch.md) | Следить за CI после push | Accepted | shared | ○ on_request | пожелание | CI-5 |
 | [AGT-7](../rules/shared/agent/AGT-7-multi-pr-series.md) | Серия PR: одна тема на PR | Accepted | shared | ○ on_request | пожелание | CI-5 |
 | [AGT-8](../rules/shared/agent/AGT-8-before-commit-pr.md) | Перед коммитом и PR | Accepted | shared | ○ on_request | пожелание | CI-1, DOC-1 |
+| [AGT-9](../rules/shared/agent/AGT-9-dont-weaken-checks.md) | Не ослабляй проверки ради зелёного статуса | Accepted | shared | ◐ globs | `angainor:tools/check_change_guard.py` | QLT-6, TST-2 |
 | [CI-8](../rules/shared/vcs/CI-8-conventional-commits.md) | Сообщения коммитов — Conventional Commits | Accepted | shared | ● always | `angainor:tools/check_commit_msg.py` | CI-8 |
 | [DOC-11](../rules/shared/docs/DOC-11-aligned-tables.md) | Таблицы выровнены | Proposed | shared | ◐ globs | пожелание | — |
 | [DOC-4](../rules/shared/docs/DOC-4-new-term-in-model-or-glossary.md) | Новый термин — в модель или глоссарий | Accepted | shared | ◐ globs | пожелание | DOC-4 |

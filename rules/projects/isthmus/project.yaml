@@ -22,6 +22,8 @@ rules:
     params:
       main_workflows: "`control-hub`, `lightkeeper`, `ops-scripts`, `quality-metrics`, `secret-scan`"
   AGT-7: true
+  AGT-9: true
+  AGT-10: true
   AGT-8:
     params:
       changelog_note: " (если в изменении есть заметное для пользователя поведение; отдельного changelog в репозитории нет)"

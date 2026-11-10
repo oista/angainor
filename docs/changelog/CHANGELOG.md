@@ -16,6 +16,7 @@
 - `scripts/check_rules.py` и `scripts/build_rules.py`: проверка реестра и проекции в `.cursor/rules/*.mdc`, `AGENTS.md`.
 - Хуки Cursor через поле `enforce` (ADR-0004): `tools/plan_name_hook.py`, генерация `.cursor/hooks.json`.
 - Проверки git и CI через `enforce` (ADR-0005): `.githooks` или блок в `.pre-commit-config.yaml`, workflow `angainor-<stage>.yml`, `tools/check_commit_msg.py` (CI-8).
+- База проверок L0: защита проверок от ослабления (AGT-9, `tools/check_change_guard.py`) и лимит размера PR (AGT-10, `tools/check_pr_size.py`).
 - Карантин старых правил проекта (`.cursor/_quarantine/<дата>/` с `MANIFEST.md`) и его проверка.
 - Профили Clavis и Isthmus.
 

@@ -21,6 +21,8 @@ rules:
     params:
       main_workflows: "`CI` (jobs `gates`, `lint`, `fuseki-smoke`)"
   AGT-7: true
+  AGT-9: true
+  AGT-10: true
   AGT-8:
     params:
       changelog_note: " (`docs/changelog/CHANGELOG.md`, версия — `docs/VERSION`)"

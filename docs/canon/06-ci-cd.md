@@ -56,6 +56,7 @@
 - CI сам по себе — стадии и защита ветки.
 - `uv lock --check` (PRODATA).
 - Формат сообщений коммитов (CI-8): [`tools/check_commit_msg.py`](../../tools/check_commit_msg.py) — хук `commit-msg` и проверка диапазона коммитов PR в CI; подключение проверок к git и CI описано в ADR-0005 (поле `enforce` правила реестра).
+- Защита проверок от ослабления (QLT-6, TST-2): [`tools/check_change_guard.py`](../../tools/check_change_guard.py) в CI. Размер PR (CI-5): [`tools/check_pr_size.py`](../../tools/check_pr_size.py). Блокировка снимается строкой `Checks-Change:` или `Large-Change:` в коммите; причина попадает в сводку PR.
 - Совпадение версии в одном месте пока не проверяется.
 
 ## Открытые вопросы
