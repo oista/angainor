@@ -38,6 +38,7 @@ class Rule:
     norm: list[str] = field(default_factory=list)
     check: str | None = None
     params: dict[str, Any] = field(default_factory=dict)
+    enforce: list[dict[str, Any]] = field(default_factory=list)
     supersedes: list[str] = field(default_factory=list)
     superseded_by: list[str] = field(default_factory=list)
     agent_text: str = ""
@@ -162,7 +163,7 @@ def load_registry(root: Path = ROOT) -> Registry:
             id=rid, title=header["title"], status=header["status"], scope=header["scope"],
             activation=header["activation"], globs=header.get("globs") or [],
             triggers=header.get("triggers") or [], norm=header.get("norm") or [],
-            check=header.get("check"), params=header.get("params") or {},
+            check=header.get("check"), params=header.get("params") or {}, enforce=header.get("enforce") or [],
             supersedes=header.get("supersedes") or [], superseded_by=header.get("superseded_by") or [],
             agent_text=agent_text, path=rel,
         )

@@ -7,7 +7,15 @@ activation: globs
 globs:
 - .cursor/plans/*.plan.md
 norm: []
-check: null
+check: angainor:tools/plan_name_hook.py
+enforce:
+- event: afterFileEdit
+  tool: tools/plan_name_hook.py
+  args: [--project, '{project}']
+- event: postToolUse
+  matcher: Write|EditNotebook
+  tool: tools/plan_name_hook.py
+  args: [--project, '{project}']
 params:
   project_name: последний сегмент пути корня рабочей области
 since: 0.1.0
@@ -19,7 +27,7 @@ since: 0.1.0
 
 Перед созданием плана задай `name: {Project}: короткая тема`, где Project — {{project_name}}.
 Верно: `Isthmus: Control Hub hardening`. Неверно: `Control Hub hardening`.
-Имя файла плана начинается с того же префикса в нижнем регистре; если в проекте нет хука, который это нормализует, следи за этим сам.
+Имя файла плана начинается с того же префикса в нижнем регистре. Хук Angainor исправляет имя после сохранения, но задавай его верно сразу.
 
 ## Зачем
 
@@ -27,7 +35,7 @@ since: 0.1.0
 
 ## Как проверяется
 
-Хук `normalize-plan-name` (сейчас `.ps1`) есть в ENTAN, Clavis и Isthmus; заменяется на `tools/plan_name_hook.py`.
+Хук `tools/plan_name_hook.py` (ADR-0004) приводит имя и файл плана к виду «Проект: тема» после сохранения. Он заменяет `normalize-plan-name.ps1` в ENTAN, Clavis и Isthmus.
 
 ## Исключения и особенности проектов
 

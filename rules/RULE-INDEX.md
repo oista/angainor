@@ -7,7 +7,7 @@
 | [AGT-1](../rules/shared/agent/AGT-1-authority-order.md) | Порядок прав источников | Accepted | shared | ● always | пожелание | DOC-3 |
 | [AGT-2](../rules/shared/agent/AGT-2-autonomy-limits.md) | Границы автономии | Proposed | shared | ● always | пожелание | — |
 | [AGT-3](../rules/shared/agent/AGT-3-fix-dialog-and-plans.md) | Фиксация диалога и планов | Accepted | shared | ○ on_request | пожелание | — |
-| [AGT-4](../rules/shared/agent/AGT-4-plan-name.md) | Имя плана — «Проект: тема» | Accepted | shared | ◐ globs | пожелание | — |
+| [AGT-4](../rules/shared/agent/AGT-4-plan-name.md) | Имя плана — «Проект: тема» | Accepted | shared | ◐ globs | `angainor:tools/plan_name_hook.py` | — |
 | [AGT-5](../rules/shared/agent/AGT-5-plan-links-adr.md) | План ссылается на ADR | Accepted | shared | ◐ globs | пожелание | DOC-8 |
 | [AGT-6](../rules/shared/agent/AGT-6-ci-watch.md) | Следить за CI после push | Accepted | shared | ○ on_request | пожелание | CI-5 |
 | [AGT-7](../rules/shared/agent/AGT-7-multi-pr-series.md) | Серия PR: одна тема на PR | Accepted | shared | ○ on_request | пожелание | CI-5 |
