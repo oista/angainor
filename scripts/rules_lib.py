@@ -23,6 +23,7 @@ FRONT_RE = re.compile(r"\A---\n(.*?)\n---\n(.*)\Z", re.S)
 AGENT_RE = re.compile(r"^## Для агента[ \t]*\n(.*?)(?=^## |\Z)", re.S | re.M)
 FILE_CODE_RE = re.compile(r"^([A-Z]{2,4}-[0-9]+)-.+\.md$")
 MODES = ("always", "globs", "on_request")
+PLACEHOLDER_RE = re.compile(r"\{\{\s*([a-z_][a-z0-9_]*)\s*\}\}")
 
 
 @dataclass
@@ -37,6 +38,7 @@ class Rule:
     norm: list[str] = field(default_factory=list)
     check: str | None = None
     params: dict[str, Any] = field(default_factory=dict)
+    enforce: list[dict[str, Any]] = field(default_factory=list)
     supersedes: list[str] = field(default_factory=list)
     superseded_by: list[str] = field(default_factory=list)
     agent_text: str = ""
@@ -52,6 +54,7 @@ class Effective:
     params: dict[str, Any]
     reason: str | None = None
     waiver: str | None = None
+    text: str = ""
 
 
 @dataclass
@@ -66,6 +69,27 @@ class Registry:
 def estimate_tokens(text: str) -> int:
     """Приближение: ~3 символа на токен (русский текст). Единый способ для всех проверок."""
     return math.ceil(len(text) / 3)
+
+
+def _value(v: Any) -> str:
+    if isinstance(v, list):
+        return ", ".join(str(x) for x in v)
+    return "" if v is None else str(v)
+
+
+def placeholders(text: str) -> set[str]:
+    return set(PLACEHOLDER_RE.findall(text))
+
+
+def fill(text: str, params: dict[str, Any]) -> str:
+    """Подставляет {{имя}} из params. Строка, где остался только пустой параметр, удаляется."""
+    out: list[str] = []
+    for line in text.split("\n"):
+        names = PLACEHOLDER_RE.findall(line)
+        if names and not PLACEHOLDER_RE.sub("", line).strip() and not any(_value(params.get(n)) for n in names):
+            continue
+        out.append(PLACEHOLDER_RE.sub(lambda m: _value(params.get(m.group(1), m.group(0))), line))
+    return "\n".join(out)
 
 
 def _schema(root: Path, name: str) -> Any:
@@ -139,7 +163,7 @@ def load_registry(root: Path = ROOT) -> Registry:
             id=rid, title=header["title"], status=header["status"], scope=header["scope"],
             activation=header["activation"], globs=header.get("globs") or [],
             triggers=header.get("triggers") or [], norm=header.get("norm") or [],
-            check=header.get("check"), params=header.get("params") or {},
+            check=header.get("check"), params=header.get("params") or {}, enforce=header.get("enforce") or [],
             supersedes=header.get("supersedes") or [], superseded_by=header.get("superseded_by") or [],
             agent_text=agent_text, path=rel,
         )
@@ -185,6 +209,9 @@ def resolve(reg: Registry, project: str) -> tuple[list[Effective], list[str]]:
         globs = e.get("globs", rule.globs)
         params = {**rule.params, **e.get("params", {})}
         if enabled:
+            missing = sorted(placeholders(rule.agent_text) - set(params))
+            if missing:
+                errors.append(f"{where}: {rid}: в тексте есть параметры без значения: {', '.join(missing)} (задайте в правиле или профиле)")
             if rule.status == "Superseded":
                 errors.append(f"{where}: {rid} включено, но Superseded (заменено: {', '.join(rule.superseded_by) or '?'})")
             if activation == "globs" and not globs:
@@ -194,5 +221,5 @@ def resolve(reg: Registry, project: str) -> tuple[list[Effective], list[str]]:
         else:
             if rule.norm and not e.get("waiver"):
                 errors.append(f"{where}: {rid} выключено, но у правила есть norm ({', '.join(rule.norm)}): нужен waiver: ADR-…")
-        out.append(Effective(rule, enabled, activation, globs, params, e.get("reason"), e.get("waiver")))
+        out.append(Effective(rule, enabled, activation, globs, params, e.get("reason"), e.get("waiver"), fill(rule.agent_text, params)))
     return out, errors

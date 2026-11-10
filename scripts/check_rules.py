@@ -11,7 +11,8 @@
 7. Бюджет «всегда включённого» (в токенах) не превышен.
 8. Фразы-триггеры не пересекаются у включённых правил одного проекта.
 9. Закреплённая версия Angainor существует как git-тег (если теги есть).
-10. С --repos-root: check проектных правил и waiver-ADR существуют в репозитории проекта.
+10. enforce: инструмент из tools/ существует, matcher только у событий инструментов.
+11. С --repos-root: check проектных правил и waiver-ADR существуют в репозитории проекта.
 
     python scripts/check_rules.py [--repos-root PATH]
 """
@@ -119,6 +120,13 @@ def run(root: Path = ROOT, repos_root: Path | None = None) -> tuple[list[str], l
             warnings.append(f"{r.path}: правило не подключено ни к одному проекту")
         if r.check is None and r.status == "Accepted":
             warnings.append(f"{r.path}: нет check — правило остаётся пожеланием")
+        for item in r.enforce:
+            if not (root / item["tool"]).is_file():
+                errors.append(f"{r.path}: enforce: инструмент '{item['tool']}' не найден в angainor")
+            if item["event"] not in ("preToolUse", "postToolUse", "postToolUseFailure") and item.get("matcher"):
+                errors.append(f"{r.path}: enforce: matcher допустим только для событий инструментов, не для {item['event']}")
+        if r.enforce and not r.check:
+            warnings.append(f"{r.path}: есть enforce, но не указан check")
         if r.check and r.check.startswith("angainor:") and not (root / r.check.split(":", 1)[1]).exists():
             errors.append(f"{r.path}: check '{r.check}' не найден в angainor")
     return errors, warnings

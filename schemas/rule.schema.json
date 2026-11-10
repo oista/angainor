@@ -100,6 +100,68 @@
         "type": "string",
         "pattern": "^([a-z][a-z0-9-]*\\.)?[A-Z]{2,4}-[0-9]+$"
       }
+    },
+    "enforce": {
+      "type": "array",
+      "description": "Привязка правила к событиям агента (хуки). Инструмент берётся из tools/ Angainor и копируется в проект",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event",
+          "tool"
+        ],
+        "properties": {
+          "event": {
+            "enum": [
+              "sessionStart",
+              "sessionEnd",
+              "beforeSubmitPrompt",
+              "preToolUse",
+              "postToolUse",
+              "postToolUseFailure",
+              "beforeShellExecution",
+              "afterShellExecution",
+              "beforeMCPExecution",
+              "afterMCPExecution",
+              "beforeReadFile",
+              "afterFileEdit",
+              "afterAgentResponse",
+              "stop",
+              "preCompact"
+            ]
+          },
+          "matcher": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Регулярное выражение по имени инструмента (для pre/postToolUse)"
+          },
+          "tool": {
+            "type": "string",
+            "pattern": "^tools/[a-z0-9_]+\\.py$",
+            "description": "Путь к инструменту в репозитории Angainor"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Аргументы командной строки; {project} заменяется ключом проекта"
+          },
+          "timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 600
+          },
+          "fail": {
+            "enum": [
+              "open",
+              "closed"
+            ],
+            "description": "open — ошибка хука не блокирует агента (по умолчанию)"
+          }
+        }
+      }
     }
   },
   "allOf": [
