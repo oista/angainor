@@ -1,10 +1,13 @@
 # Реестр контуров Angainor (канон 10-contours, ENV-1).
-# Черновик: значения TODO нужно заменить реальными данными.
-# check_contours.py должен падать, пока в файле есть TODO.
-# Пометка «подтвердить» = значение выведено из описания владельца, а не сказано прямо.
-schema_version: 1
+# Режим draft: значение unknown = «не установлено», а не разрешение. Пока есть open_items,
+# реестр нельзя переводить в approved, а production-pin не может на него ссылаться.
+# Источники: документы репозиториев (ссылки вида repo:path) и прежние диалоги; живые узлы
+# по сети не проверялись, поэтому статус observed нигде не используется.
+# Принцип данных (default deny): пока владелец не подтвердил иное, разрешены только synthetic и public.
+schema_version: 2
+registry_status: draft
+as_of: "2026-11-09"
 
-# Стартовый список классов данных (открытый вопрос 2 в 10-contours.md).
 data_classes:
   - id: synthetic
     description: Сгенерированные и тестовые данные без реальных источников.
@@ -18,142 +21,320 @@ data_classes:
     description: Данные и артефакты работодателя.
 
 contours:
+  # ---------------------------------------------------------------- cnt
   - code: cnt
     name: Centurion
     kind: workstation
-    owner: bons1                       # подтвердить
+    owner: bons1
     status: active
-    stages: [dev]
-    notes: Рабочий ПК, основная разработка.
+    stages: [dev, prod]
+    notes: >-
+      Рабочий ПК, основная разработка. Документы связывают с ним Windows-путь деплоя PRODATA,
+      поэтому стадия prod указана, но размещение раннера не подтверждено (OI-02).
     network:
-      zone: TODO
-      access: TODO
+      zone: home-lan
+      access: unknown
     delivery:
-      ci: TODO                         # github-actions | gitlab-ci | none
-      method: git-tag
-    allowed_data_classes: [synthetic, public, own]   # TODO: подтвердить; принадлежит ли ПК работодателю
+      ci: github-actions
+      method: github-actions
+    allowed_data_classes: [synthetic, public]
     secrets:
-      store: TODO
+      store: unknown
     agents:
-      allowed_tools: []                # TODO: список разрешённых инструментов
+      allowed_tools: []
       human_in_loop: on_write
+    backup: { required: true, target: unknown, schedule: unknown, retention: unknown, rpo: unknown, rto: unknown, last_restore_test: unknown }
+    post_deploy_check: { required: true, probe: unknown }
+    nodes:
+      - id: cnt-main
+        kind: workstation
+        role: [development, windows-deploy-path]
+        os: { family: windows }
+        addresses:
+          - { ip: 192.168.10.64, kind: lan, status: current, source_ref: "isthmus:wangate/host/choke-point-cutover.md (cutover 2026-11-02)" }
+          - { ip: 192.168.1.64, kind: lan, status: historical, source_ref: "prodata-platform:docs/dev/wangate-infra.md" }
+          - { ip: 10.20.20.4, kind: overlay, status: current, source_ref: "prodata-platform:docs/dev/wangate-infra.md" }
+        wg_profile: wireg-homepc
+        evidence:
+          status: documented
+          source_ref: "prodata-platform:.github/workflows/deploy.yml; prodata-platform:docs/dev/wangate-infra.md"
+          as_of: "2026-11-09"
 
+  # ---------------------------------------------------------------- lgn
   - code: lgn
     name: Legioner
     kind: workstation
-    owner: bons1                       # подтвердить
+    owner: bons1
     status: active
-    stages: [dev]                      # подтвердить
-    notes: Ноутбук, станция разработки вне дома.
+    stages: [dev]
+    notes: >-
+      Ноутбук, станция разработки вне дома. При фильтрации сети путь к Pharos идёт через
+      Nekoray/Throne и wstunnel. Helper на :9099 не является SSH-доступом.
     network:
-      zone: TODO                       # вне домашней сети; как попадает домой (VPN через prs/wgn?)
-      access: TODO
+      zone: roaming
+      access: unknown
     delivery:
-      ci: TODO
-      method: git-tag
-    allowed_data_classes: [synthetic, public, own]   # TODO: подтвердить; ноутбук выносится из дома
+      ci: none
+      method: manual
+    allowed_data_classes: [synthetic, public]
     secrets:
-      store: TODO
+      store: unknown
     agents:
       allowed_tools: []
       human_in_loop: on_write
+    nodes:
+      - id: lgn-laptop
+        kind: workstation
+        role: [development, roaming]
+        os: { family: windows }
+        addresses:
+          - { ip: 10.20.20.3, kind: overlay, status: current, source_ref: "prodata-platform:docs/dev/wangate-infra.md" }
+        wg_profile: wireg
+        evidence:
+          status: documented
+          source_ref: "prodata-platform:docs/dev/wangate-infra.md"
+          as_of: "2026-11-09"
 
+  # ---------------------------------------------------------------- wgn
   - code: wgn
     name: Wangate
     kind: gateway
-    owner: bons1                       # подтвердить
+    owner: bons1
     status: active
-    stages: [prod]                     # подтвердить
-    notes: Мини-ПК, входной шлюз домашней сети.
+    stages: [prod]
+    notes: >-
+      Мини-ПК, входной шлюз домашней сети: маршрутизация, DNS, TLS edge. Изменение сети
+      способно одновременно нарушить доступ ко всем домашним сервисам.
     network:
       zone: home-edge
-      address: 192.168.10.1
-      access: TODO
+      access: "ssh по ключу через overlay (пользователь oista)"
     delivery:
-      ci: TODO
-      method: TODO
-    allowed_data_classes: [TODO]       # скорее всего только конфигурация и логи сети, без прикладных данных
+      ci: none
+      method: manual
+    allowed_data_classes: []
     secrets:
-      store: TODO
+      store: unknown
     agents:
       allowed_tools: []
-      human_in_loop: always            # шлюз сети: по умолчанию человек подтверждает всё; подтвердить
-    backup: { required: true }         # подтвердить
-    post_deploy_check: { required: true }   # подтвердить
+      human_in_loop: always
+    backup: { required: true, target: unknown, schedule: unknown, retention: unknown, rpo: unknown, rto: unknown, last_restore_test: unknown }
+    post_deploy_check: { required: true, probe: unknown }
+    nodes:
+      - id: wgn-gw
+        kind: physical
+        role: [gateway, routing, dns, tls-edge]
+        os: { family: debian, version: "13" }
+        addresses:
+          - { ip: 192.168.10.1, kind: lan, status: current, source_ref: "isthmus:wangate/host/choke-point-cutover.md (cutover 2026-11-02)" }
+          - { ip: 10.20.20.2, kind: overlay, status: current, source_ref: "prodata-platform:docs/dev/wangate-infra.md" }
+          - { ip: 192.168.1.203, kind: lan, status: historical, source_ref: "isthmus:wangate/host/choke-point-cutover.md" }
+        ssh:
+          user: oista
+          via: overlay
+          key_ref: "~/.ssh/id_ed25519 (Windows: %USERPROFILE%\\.ssh\\id_ed25519)"
+          host_fingerprint: unknown
+        evidence:
+          status: documented
+          source_ref: "isthmus:wangate/docs/network-and-vps-setup.md (Debian 13 как проверенный вариант)"
+          as_of: "2026-11-09"
 
+  # ---------------------------------------------------------------- prs
   - code: prs
     name: Pharos
     kind: server
-    owner: bons1                       # подтвердить
+    owner: bons1
     status: active
-    stages: [prod]                     # подтвердить
-    notes: VPS, публично доступный сервер.
+    stages: [prod]
+    notes: >-
+      VPS, публичный transport hub: wstunnel, WireGuard, overlay DNS. Portainer и Kuma должны
+      быть доступны только по WG, не из WAN (намерение документа, снаружи не проверено).
     network:
       zone: public-internet
-      address: 45.134.218.129          # публичный IP: см. вопрос о приватности репозитория
-      access: TODO
+      access: "ssh по ключу (пользователь vpsops)"
     delivery:
-      ci: TODO
-      method: TODO
-    allowed_data_classes: [TODO]       # публичный контур: «own» и «employer» там, скорее всего, недопустимы
+      ci: none
+      method: manual
+    allowed_data_classes: [synthetic, public]
     secrets:
-      store: TODO
+      store: unknown
     agents:
       allowed_tools: []
-      human_in_loop: always            # подтвердить
-    backup: { required: true }         # подтвердить
-    post_deploy_check: { required: true }   # подтвердить
+      human_in_loop: always
+    backup: { required: true, target: unknown, schedule: unknown, retention: unknown, rpo: unknown, rto: unknown, last_restore_test: unknown }
+    post_deploy_check: { required: true, probe: unknown }
+    nodes:
+      - id: prs-vps
+        kind: vps
+        role: [transport-hub, wstunnel, wireguard, overlay-dns, admin-portainer-kuma]
+        os: { family: ubuntu, version: "26.04" }
+        resources:
+          vcpu: 1
+          ram_mib: 2048
+          disks:
+            - { size_gb: 40 }
+        addresses:
+          - { ip: 45.134.218.129, kind: wan, status: current, source_ref: "isthmus:pharos-vps/README.md" }
+          - { ip: 10.20.20.1, kind: overlay, status: current, source_ref: "isthmus:pharos-vps/README.md" }
+        ssh:
+          user: vpsops
+          key_ref: "~/.ssh/vps/vps_eu"
+          host_fingerprint: unknown
+        evidence:
+          status: historical
+          source_ref: "isthmus:pharos-vps/vps_init.md (карточка создания VPS; текущая конфигурация не проверялась)"
+          as_of: "2026-07-05"
 
-  - code: cst                          # ПРЕДЛОЖЕНИЕ: имя Castrum (римский лагерь), подтвердить или заменить
-    name: Castrum
+  # ---------------------------------------------------------------- frm
+  - code: frm                          # имя Forum выбрано владельцем 2026-11-09
+    name: Forum
     kind: server
-    owner: bons1                       # подтвердить
+    owner: bons1
     status: active
-    stages: [TODO]                     # dev / test / prod?
-    notes: Домашний сервер приложений.
+    stages: []                         # dev/test/prod не установлены (OI-01)
+    notes: >-
+      Домашний сервер приложений. По docs moex-data-model на 192.168.10.140 описаны GitLab :8929
+      (проект root/moex-models), runner и MOEX_AUTH_MODE=dev; это документация, а не проверка.
+      Соотношение Forum, физического Proxmox и VM app-srv не установлено.
     network:
       zone: home-lan
-      address: 192.168.10.140
-      access: TODO
+      access: "ssh oista@192.168.10.140 (исторически)"
     delivery:
-      ci: TODO
-      method: TODO
-    allowed_data_classes: [TODO]
+      ci: unknown
+      method: unknown
+    allowed_data_classes: [synthetic, public]
     secrets:
-      store: TODO
+      store: unknown
     agents:
       allowed_tools: []
       human_in_loop: on_write
+    nodes:
+      - id: frm-pve
+        kind: physical
+        role: [hypervisor]
+        os: { family: proxmox }
+        resources:
+          cpu_model: "AMD Ryzen 9 5950X"
+          board: "ASRock Rack B550D4U-2T"
+        notes: >-
+          Из домашнего диалога 23-24.10.2026. На нём же отдельная VM с Home Assistant OS.
+          Отнесение к контуру frm не подтверждено.
+        evidence:
+          status: historical
+          source_ref: "dialog:2026-10-23/24 (HomeLab)"
+          as_of: "2026-10-24"
+      - id: frm-appsrv
+        kind: vm
+        parent_node: frm-pve
+        role: [app-server]
+        os: { family: debian }
+        resources:
+          disks:
+            - { size_gb: 150 }
+            - { size_gb: 300 }
+        addresses:
+          - { ip: 192.168.10.140, kind: lan, status: current, source_ref: "dialog:2026-10-23/24; moex-data-model:docs/user/30-howto/gitlab-models.md" }
+        ssh:
+          user: oista
+          port: 22
+          via: lan
+          host_fingerprint: unknown
+        notes: "RAM не подтверждена. Предложенные ранее 8 vCPU и около 16 GB не измерены."
+        evidence:
+          status: historical
+          source_ref: "dialog:2026-10-23/24 (вывод пользователя: диски, sshd на :22)"
+          as_of: "2026-10-24"
 
-  - code: mxl                          # ПРЕДЛОЖЕНИЕ: от Moexlab, подтвердить
+  # ---------------------------------------------------------------- mxl
+  - code: mxl                          # предложение: код от Moexlab
     name: Moexlab
-    kind: TODO                         # один сервер, несколько машин, виртуальная среда?
-    owner: TODO                        # работодатель или вы как оператор
+    kind: unknown
+    owner: unknown
     status: active
-    stages: [TODO]
+    stages: []
     notes: >-
-      Рабочий контур без интернета. Образы доставляются по почте.
-      Агенты Claude внутри контура недоступны: артефакты переносит человек.
+      Рабочий контур без интернета. Образы доставляются по почте. Топология, ОС и ресурсы не
+      установлены, их нельзя заимствовать у других узлов. Агенты Claude внутри контура
+      недоступны по организации работы (политика, а не техническая блокировка): артефакты
+      переносит человек.
     network:
       zone: employer-isolated
-      access: TODO
+      access: unknown
       airgap: true
     delivery:
       ci: none
       method: airgap-bundle
-    allowed_data_classes: [TODO]       # вероятно employer и licensed
+    allowed_data_classes: []
     secrets:
-      store: TODO
+      store: unknown
     agents:
       allowed_tools: []
       human_in_loop: always
-    backup: { required: TODO }
-    post_deploy_check: { required: TODO }
+    nodes: []
 
 # Допустимые переходы между средами (ENV-7). Чего здесь нет, того не существует.
 promotion: []
 # Гипотеза для проверки (не принято):
-# - { from: cnt.dev, to: cst.<стадия>, via: git-tag }
-# - { from: lgn.dev, to: cst.<стадия>, via: git-tag }
-# - { from: cst.<стадия>, to: prs.prod, via: TODO }
+# - { from: cnt.dev, to: cnt.prod, via: github-actions }   # self-hosted Windows-раннер, если подтвердится OI-02
 # - { from: <среда сборки образа>, to: mxl.<стадия>, via: airgap-bundle }
+
+open_items:
+  - id: OI-01
+    contour: frm
+    priority: high
+    text: >-
+      Установить топологию: Forum это физический Proxmox, VM app-srv или иной узел.
+      README Wangate называет адрес приложений 192.168.10.30, реестр и moex-data-model
+      используют 192.168.10.140. Определить, что это: другой узел, старое имя или новая адресация.
+      Заодно назначить стадии (в docs присутствует MOEX_AUTH_MODE=dev).
+  - id: OI-02
+    contour: cnt
+    priority: high
+    text: >-
+      Подтвердить, на каком узле стоит self-hosted Windows-раннер деплоя PRODATA и является
+      ли Centurion целью продакшен-выкладки (тогда оставить stages: [dev, prod]).
+      Раннер должен запускаться только по push в main и вручную, не по PR.
+  - id: OI-03
+    contour: mxl
+    priority: high
+    text: >-
+      Moexlab: узлы и адреса, ОС и ресурсы, разрешённый канал доставки образов, кто принимает
+      и проверяет бандл, есть ли локальный GitLab и runner, владелец контура.
+  - id: OI-04
+    priority: normal
+    text: >-
+      Снять фактические ОС, CPU, RAM и диски для cnt, lgn, wgn, frm-appsrv (команды в конце
+      документа аудита) и проверить, менялся ли VPS после создания 2026-07-05. После этого
+      evidence.status поднять до observed.
+  - id: OI-05
+    priority: high
+    text: >-
+      Классификация данных: где допустимы own, licensed и employer; разрешена ли отправка
+      исходных и производных артефактов внешним AI. До ответа действует default deny.
+  - id: OI-06
+    priority: normal
+    text: >-
+      Черновые значения политики не утверждены владельцем: права агентов (allowed_tools,
+      human_in_loop) и признак backup/post_deploy_check для prod-контуров. Для backup заполнить
+      объект, расписание, retention, RPO/RTO и дату последнего восстановления.
+  - id: OI-07
+    priority: high
+    text: >-
+      В карточке isthmus:pharos-vps/vps_init.md найдены открытые учётные данные. Считать их
+      потенциально скомпрометированными: определить scope, заменить, перенести инструкции на
+      secret references. Значения в реестр и документы не переносить.
+  - id: OI-08
+    contour: lgn
+    priority: normal
+    text: >-
+      У lgn и cnt уже разные WG-адреса (10.20.20.3 и .4). Проверить, что у них разные ключи
+      и профили (wireg и wireg-homepc), и что один профиль не включают на обоих устройствах.
+  - id: OI-09
+    priority: normal
+    text: >-
+      Заметки PRODATA (docs/dev/wangate-infra.md) ещё содержат старые адреса 192.168.1.203 и
+      192.168.1.64. Обновить или пометить историческими после согласования реестра.
+  - id: OI-10
+    priority: normal
+    text: >-
+      DNS: фиксировать приоритет overlay-DNS Pharos и Wangate по профилю клиента и проверить
+      отдельно. Проверить снаружи, что Portainer и Kuma недоступны из WAN.

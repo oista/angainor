@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/rule",
+  "$comment": "canon: DOC-2, DOC-8",
+  "title": "YAML-шапка правила реестра (rules/**/<ID>-<slug>.md)",
+  "description": "Машиночитаемая часть правила для агентов. Решение — ADR-0003. Текст для агента лежит в разделе «Для агента» файла, не в шапке.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "status",
+    "scope",
+    "activation"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9-]*\\.)?[A-Z]{2,4}-[0-9]+$",
+      "description": "Общее правило: AGT-6, DOC-7. Проектное: prodata.DB-1. Номер не используется повторно."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "Proposed",
+        "Accepted",
+        "Deprecated",
+        "Superseded"
+      ]
+    },
+    "scope": {
+      "type": "string",
+      "pattern": "^(shared|preset:[a-z][a-z0-9-]*|project:[a-z][a-z0-9-]*)$",
+      "description": "shared — для всех проектов; project:<ключ> — только для одного"
+    },
+    "activation": {
+      "enum": [
+        "always",
+        "globs",
+        "on_request"
+      ],
+      "description": "Режим по умолчанию; профиль проекта может его переопределить"
+    },
+    "globs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Фразы пользователя, по которым срабатывает правило (для on_request)"
+    },
+    "norm": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z]+-[0-9]+$"
+      },
+      "description": "Правила канона, которые воплощает это правило. Если список не пуст, выключение в проекте требует waiver"
+    },
+    "check": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Проверка, которая ловит нарушение (скрипт, тест, хук). null — правило остаётся пожеланием"
+    },
+    "params": {
+      "type": "object",
+      "description": "Параметры по умолчанию; профиль проекта может их переопределить"
+    },
+    "since": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Версия Angainor, в которой правило появилось"
+    },
+    "deprecated_since": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Версия, с которой правило Deprecated; удаляется не раньше следующего выпуска"
+    },
+    "supersedes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^([a-z][a-z0-9-]*\\.)?[A-Z]{2,4}-[0-9]+$"
+      }
+    },
+    "superseded_by": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^([a-z][a-z0-9-]*\\.)?[A-Z]{2,4}-[0-9]+$"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "activation": {
+            "const": "globs"
+          }
+        },
+        "required": [
+          "activation"
+        ]
+      },
+      "then": {
+        "required": [
+          "globs"
+        ],
+        "properties": {
+          "globs": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "activation": {
+            "const": "on_request"
+          }
+        },
+        "required": [
+          "activation"
+        ]
+      },
+      "then": {
+        "required": [
+          "triggers"
+        ],
+        "properties": {
+          "triggers": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "pattern": "^project:"
+          }
+        },
+        "required": [
+          "scope"
+        ]
+      },
+      "then": {
+        "properties": {
+          "id": {
+            "pattern": "^[a-z][a-z0-9-]*\\.[A-Z]{2,4}-[0-9]+$"
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

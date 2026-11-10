@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "angainor/project-profile",
+  "$comment": "canon: DOC-2, DOC-8",
+  "title": "Профиль проекта в реестре правил (rules/projects/<проект>/project.yaml)",
+  "description": "Какие правила действуют в проекте, в каком режиме и с какими параметрами. Решение — ADR-0003. Личных переключателей поверх профиля нет.",
+  "type": "object",
+  "required": [
+    "project",
+    "repo",
+    "angainor",
+    "always_on_budget_tokens",
+    "rules"
+  ],
+  "properties": {
+    "project": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "repo": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Путь к репозиторию проекта относительно каталога с репозиториями"
+    },
+    "github": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "angainor": {
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "Закреплённый тег Angainor, по которому сгенерированы проекции"
+        }
+      },
+      "additionalProperties": false
+    },
+    "always_on_budget_tokens": {
+      "type": "integer",
+      "minimum": 100,
+      "description": "Предел для всего, что включено всегда (angainor-core.mdc и always-блок AGENTS.md)"
+    },
+    "rules": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^([a-z][a-z0-9-]*\\.)?[A-Z]{2,4}-[0-9]+$"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "const": true,
+            "description": "Краткая запись «включено, как задано в правиле». Выключить кратко (false, off) нельзя: нужна запись с reason. Слова on/off в YAML 1.1 читаются как булевы значения, поэтому ими не пользуемся."
+          },
+          {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "activation": {
+                "enum": [
+                  "always",
+                  "globs",
+                  "on_request"
+                ]
+              },
+              "globs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "params": {
+                "type": "object"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Почему выключено или переопределено"
+              },
+              "waiver": {
+                "type": "string",
+                "pattern": "^(ADR[- ])?[0-9]{3,4}$",
+                "description": "Accepted ADR проекта, разрешающий отступление от правила с norm (проверяется скриптом)"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "enabled": {
+                      "const": false
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "reason"
+                  ]
+                }
+              }
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "environment": {
+      "type": "object",
+      "description": "Карточка окружения: не правило, режима активации нет. Проецируется в AGENTS.md отдельным блоком.",
+      "properties": {
+        "commands": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Имя → команда: lint, test, run, check_all и т. п."
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ограничения запуска: чего нет в среде, что нужно настроить"
+        }
+      },
+      "additionalProperties": false
+    },
+    "vocabulary": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Переходное: файлы словарей, пока определения не переехали в модель и глоссарий (DOC-4)"
+    }
+  },
+  "additionalProperties": false
+}
