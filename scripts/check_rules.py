@@ -12,7 +12,8 @@
 8. Фразы-триггеры не пересекаются у включённых правил одного проекта.
 9. Закреплённая версия Angainor существует как git-тег (если теги есть).
 10. enforce: инструмент из tools/ существует, matcher только у событий инструментов.
-11. С --repos-root: check проектных правил и waiver-ADR существуют в репозитории проекта.
+11. enforce: инструмент импортирует только стандартную библиотеку; ci требует stage и when.
+12. С --repos-root: check проектных правил и waiver-ADR существуют в репозитории проекта.
 
     python scripts/check_rules.py [--repos-root PATH]
 """
@@ -20,6 +21,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import subprocess
 import sys
 from pathlib import Path
@@ -36,6 +38,23 @@ def git_tags(root: Path) -> set[str] | None:
     except (OSError, subprocess.CalledProcessError):
         return None
     return {t.strip() for t in out.splitlines() if t.strip()}
+
+
+def tool_import_errors(root: Path, where: str, tool: str) -> list[str]:
+    """Инструмент копируется в проект, поэтому может импортировать только стандартную библиотеку."""
+    path = root / tool
+    if not path.is_file():
+        return []
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError as exc:
+        return [f"{where}: enforce: {tool} не разбирается: {exc.msg}"]
+    bad = set()
+    for node in ast.walk(tree):
+        names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+            [node.module or ""] if isinstance(node, ast.ImportFrom) and node.level == 0 else []
+        bad |= {n.split(".")[0] for n in names if n and n.split(".")[0] not in sys.stdlib_module_names}
+    return [f"{where}: enforce: {tool} импортирует не из стандартной библиотеки: {', '.join(sorted(bad))}"] if bad else []
 
 
 def canon_codes_of(root: Path) -> set[str]:
@@ -123,6 +142,11 @@ def run(root: Path = ROOT, repos_root: Path | None = None) -> tuple[list[str], l
         for item in r.enforce:
             if not (root / item["tool"]).is_file():
                 errors.append(f"{r.path}: enforce: инструмент '{item['tool']}' не найден в angainor")
+            errors += tool_import_errors(root, r.path, item["tool"])
+            if item["event"] == "ci" and not (item.get("stage") and item.get("when")):
+                errors.append(f"{r.path}: enforce: для event=ci нужны stage и when")
+            if item["event"] != "ci" and (item.get("stage") or item.get("when")):
+                errors.append(f"{r.path}: enforce: stage и when допустимы только для event=ci")
             if item["event"] not in ("preToolUse", "postToolUse", "postToolUseFailure") and item.get("matcher"):
                 errors.append(f"{r.path}: enforce: matcher допустим только для событий инструментов, не для {item['event']}")
         if r.enforce and not r.check:

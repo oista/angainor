@@ -45,6 +45,13 @@
       "minimum": 100,
       "description": "Предел для всего, что включено всегда (angainor-core.mdc и always-блок AGENTS.md)"
     },
+    "git_hooks": {
+      "enum": [
+        "githooks",
+        "pre-commit"
+      ],
+      "description": "Как доставлять git-хуки: каталог .githooks (core.hooksPath) или блок в .pre-commit-config.yaml. По умолчанию githooks"
+    },
     "rules": {
       "type": "object",
       "propertyNames": {

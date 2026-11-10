@@ -5,6 +5,7 @@ github: oista/clavis
 angainor:
   version: 0.1.0
 always_on_budget_tokens: 900
+git_hooks: pre-commit   # в Clavis уже есть .pre-commit-config.yaml
 
 rules:
   AGT-1: true
