@@ -1,0 +1,48 @@
+# Профиль Clavis: какие правила Angainor включены и с какими параметрами (ADR-0003).
+project: clavis
+repo: cavis            # каталог рабочей копии (--repos-root); GitHub — oista/clavis
+github: oista/clavis
+angainor:
+  version: 0.1.0
+always_on_budget_tokens: 900
+
+rules:
+  AGT-1: true
+  AGT-2: true
+  AGT-3:
+    params:
+      export_command: .\scripts\export-cursor-dialog.ps1
+  AGT-4:
+    params:
+      project_name: "`clavis`"
+  AGT-5: true
+  AGT-6:
+    params:
+      main_workflows: "`CI` (jobs `gates`, `lint`, `fuseki-smoke`)"
+  AGT-7: true
+  AGT-8:
+    params:
+      changelog_note: " (`docs/changelog/CHANGELOG.md`, версия — `docs/VERSION`)"
+      check_command: "pytest -q и scripts/check_*.py из .github/workflows/ci.yml; ruff check ontology_core src scripts tests"
+      task_link: "ссылка на задачу, если есть"
+      extra: "Не ломай публичный API `ontology_core` без согласования с ENTAN и kgraph."
+  DOC-4:
+    params:
+      glossary: docs/glossary.md
+      notes: "Канон имён: продукт Clavis, GitHub `oista/clavis`, import-пакет `ontology_core`; «Cavis» — историческое написание."
+  DOC-5: true
+  DOC-7: true
+  DOC-11: true
+  LAY-1:
+    params:
+      gate: "ADR в `docs/adr/` (или запись о известном дефекте в roadmap), затем обновление `README.md`, структуры в `docs/architecture.md` и `docs/glossary.md`"
+      allowed_root: "`docs/`, `ontology_core/`, `ontology/`, `projections/`, `src/`, `scripts/`, `tests/`, `deploy/`, `.cursor/`, `.vscode/`, `clavis.code-workspace`, `pyproject.toml`, `README.md`, `docker-compose.yml`"
+      boundaries: "Не поглощай `kgraph_data_developer` в этот репозиторий. Не переименовывай import-пакет `ontology_core` без согласованных PR потребителей."
+  CI-8: true
+
+environment:
+  commands:
+    tests: pytest -q
+    lint: ruff check ontology_core src scripts tests
+    types: mypy ontology_core src/clavis_harvest
+  constraints: []

@@ -39,7 +39,7 @@ def render_core(eff: list[Effective], version: str, project: str) -> str:
     lines = ["---", f"description: Angainor — обязательные правила проекта {project}", "alwaysApply: true", "---", "",
              f"<!-- {header(version, project)} -->", ""]
     for e in always:
-        lines += [f"## {e.rule.id} {e.rule.title}", "", e.rule.agent_text, ""]
+        lines += [f"## {e.rule.id} {e.rule.title}", "", e.text, ""]
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -51,7 +51,7 @@ def render_rule_mdc(e: Effective, version: str, project: str) -> str:
     else:
         phrases = ", ".join(f"«{t}»" for t in r.triggers)
         fm += [f"description: {r.id} {r.title}. Применять, когда пользователь говорит: {phrases}", "alwaysApply: false"]
-    fm += ["---", "", f"<!-- {header(version, project)} -->", "", f"# {r.id} {r.title}", "", r.agent_text, ""]
+    fm += ["---", "", f"<!-- {header(version, project)} -->", "", f"# {r.id} {r.title}", "", e.text, ""]
     return "\n".join(fm)
 
 
@@ -62,7 +62,7 @@ def render_agents_block(project: str, eff: list[Effective], env: dict | None, ve
     if always:
         out += ["### Всегда", ""]
         for e in always:
-            out += [f"**{e.rule.id} {e.rule.title}.**", "", e.rule.agent_text, ""]
+            out += [f"**{e.rule.id} {e.rule.title}.**", "", e.text, ""]
     rest = [e for e in on if e.activation != "always"]
     if rest:
         out += ["### Остальные правила", "", "| Правило | Когда действует |", "| --- | --- |"]

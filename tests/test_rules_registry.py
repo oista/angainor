@@ -263,3 +263,20 @@ def test_registry_pages(root):
     assert "AGT-6" in index and "пожелание" in index
     assert "| demo |" in matrix and "●" in matrix and "◐" in matrix and "○" in matrix
     assert "токенов из 900" in page
+
+
+def test_fill_substitutes_and_drops_empty_lines():
+    import rules_lib
+    text = "Команда: {{cmd}}\n{{extra}}\nКонец"
+    assert rules_lib.fill(text, {"cmd": "pytest", "extra": ""}) == "Команда: pytest\nКонец"
+    assert rules_lib.fill("a {{x}}", {"x": ["1", "2"]}) == "a 1, 2"
+    assert rules_lib.placeholders("{{a}} и {{ b }}") == {"a", "b"}
+
+
+def test_params_are_projected_and_unresolved_is_error(root):
+    write_rule(root, "rules/shared/agent/AGT-8-pr.md", id="AGT-8", title="PR",
+               text="Проверка: {{check_command}}")
+    write_profile(root, "demo", "  AGT-8:\n    params: {check_command: make check}\n")
+    assert errors(root) == []
+    write_profile(root, "demo", "  AGT-8: true\n")
+    assert any("check_command" in e for e in errors(root))
