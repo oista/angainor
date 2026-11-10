@@ -11,11 +11,11 @@ check: angainor:tools/plan_name_hook.py
 enforce:
 - event: afterFileEdit
   tool: tools/plan_name_hook.py
-  args: [--project, '{project}']
+  args: [--project, '{plan_prefix}']
 - event: postToolUse
   matcher: Write|EditNotebook
   tool: tools/plan_name_hook.py
-  args: [--project, '{project}']
+  args: [--project, '{plan_prefix}']
 params:
   project_name: последний сегмент пути корня рабочей области
 since: 0.1.0

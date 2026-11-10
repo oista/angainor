@@ -54,7 +54,7 @@ def normalize(path: Path, project: str) -> Path | None:
     match = NAME_RE.search(raw)
     name = match.group(1).strip("\"'") if match else path.name[: -len(".plan.md")]
     prefix = f"{project}:"
-    new_name = name if name.startswith(prefix) else f"{project}: {name}"
+    new_name = name if name.lower().startswith(prefix.lower()) else f"{project}: {name}"
 
     id_match = ID_RE.search(path.name)
     plan_id = id_match.group(1) if id_match else None
@@ -63,7 +63,7 @@ def normalize(path: Path, project: str) -> Path | None:
         rest = rest[: -len(plan_id) - 1]
     new_base = path.name
     if not rest.startswith(project_slug + "_"):
-        topic = slug(re.sub(r"^" + re.escape(project) + r"\s*:\s*", "", new_name)) or rest
+        topic = slug(re.sub(r"^" + re.escape(project) + r"\s*:\s*", "", new_name, flags=re.I)) or rest
         new_base = f"{project_slug}_{topic}" + (f"_{plan_id}" if plan_id else "") + ".plan.md"
 
     new_raw = raw
@@ -80,7 +80,7 @@ def normalize(path: Path, project: str) -> Path | None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--project", required=True, help="ключ проекта, например clavis")
+    ap.add_argument("--project", required=True, help="префикс имени плана, например clavis или Isthmus")
     args = ap.parse_args(argv)
     try:
         raw = sys.stdin.read()

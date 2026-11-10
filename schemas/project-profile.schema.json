@@ -52,6 +52,11 @@
       ],
       "description": "Как доставлять git-хуки: каталог .githooks (core.hooksPath) или блок в .pre-commit-config.yaml. По умолчанию githooks"
     },
+    "plan_prefix": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Префикс имени плана «Префикс: тема», если он отличается от ключа проекта (например, Isthmus). По умолчанию — ключ проекта"
+    },
     "rules": {
       "type": "object",
       "propertyNames": {

@@ -424,3 +424,14 @@ def test_quarantine_requires_manifest_with_all_files(root):
     assert any("delete_after" in e for e in check_rules.run(root, repos)[0])
     (q / "MANIFEST.md").write_text("---\ndelete_after: manual\n---\n| old-rule.mdc | заменено AGT-4 |\n", encoding="utf-8")
     assert not any("_quarantine" in e for e in check_rules.run(root, repos)[0])
+
+
+def test_plan_prefix_from_profile_goes_into_hook_args(root):
+    repos = hook_root(root)
+    prof = root / "rules/projects/demo/project.yaml"
+    prof.write_text(prof.read_text(encoding="utf-8") + "plan_prefix: Demo\n", encoding="utf-8")
+    p = root / "rules/shared/agent/AGT-4-plan.md"
+    p.write_text(p.read_text(encoding="utf-8").replace("'{project}'", "'{plan_prefix}'"), encoding="utf-8")
+    build_rules.main(["--root", str(root), "--projections", "--repos-root", str(repos)])
+    doc = json.loads((repos / "demo" / ".cursor" / "hooks.json").read_text(encoding="utf-8"))
+    assert doc["hooks"]["afterFileEdit"][0]["command"].endswith("--project Demo")

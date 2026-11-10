@@ -150,7 +150,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Аргументы; {project}, {arg1} (первый аргумент git-хука), {pr_range} (диапазон коммитов PR в CI)"
+            "description": "Аргументы; {project}, {plan_prefix} (префикс плана из профиля), {arg1} (первый аргумент git-хука), {pr_range} (диапазон коммитов PR в CI)"
           },
           "timeout": {
             "type": "integer",

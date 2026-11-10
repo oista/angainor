@@ -56,3 +56,17 @@ def test_ignores_other_files_and_garbage(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, "stdin", io.StringIO("не json"))
     assert hook.main(["--project", "clavis"]) == 0
     assert capsys.readouterr().out.strip() == "{}"
+
+
+def test_prefix_is_case_insensitive_and_keeps_existing_case(tmp_path, monkeypatch, capsys):
+    p = make_plan(tmp_path, "isthmus_audit_ab12cd34.plan.md", "Isthmus: Audit")
+    before = p.read_text(encoding="utf-8")
+    run(monkeypatch, capsys, {"file_path": str(p)}, project="Isthmus")
+    assert p.exists() and p.read_text(encoding="utf-8") == before
+
+
+def test_display_prefix_with_capital_gives_lowercase_slug(tmp_path, monkeypatch, capsys):
+    p = make_plan(tmp_path, "topic.plan.md", "Topic")
+    run(monkeypatch, capsys, {"file_path": str(p)}, project="Isthmus")
+    new = tmp_path / ".cursor" / "plans" / "isthmus_topic.plan.md"
+    assert new.exists() and "name: Isthmus: Topic" in new.read_text(encoding="utf-8")
