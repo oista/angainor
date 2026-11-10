@@ -2,9 +2,9 @@
 """Проверка сообщений коммитов по Conventional Commits (канон CI-8, правило реестра CI-8).
 
 Режимы:
-    python scripts/check_commit_msg.py .git/COMMIT_EDITMSG     # хук commit-msg
-    python scripts/check_commit_msg.py --message "feat: ..."   # одно сообщение
-    python scripts/check_commit_msg.py --range origin/main..HEAD   # CI: все коммиты PR
+    python tools/check_commit_msg.py .git/COMMIT_EDITMSG     # хук commit-msg
+    python tools/check_commit_msg.py --message "feat: ..."   # одно сообщение
+    python tools/check_commit_msg.py --range origin/main..HEAD   # CI: все коммиты PR
 
 Заголовок: `тип(область)?!?: описание`, не длиннее 100 символов.
 Пропускаются служебные: Merge ..., Revert "...", fixup!/squash!/amend!.

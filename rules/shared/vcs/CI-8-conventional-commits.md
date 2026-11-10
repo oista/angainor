@@ -6,15 +6,15 @@ scope: shared
 activation: always
 norm:
 - CI-8
-check: angainor:scripts/check_commit_msg.py
+check: angainor:tools/check_commit_msg.py
 enforce:
 - event: commit-msg
-  tool: scripts/check_commit_msg.py
+  tool: tools/check_commit_msg.py
   args: ['{arg1}']
 - event: ci
   stage: commits
   when: pull_request
-  tool: scripts/check_commit_msg.py
+  tool: tools/check_commit_msg.py
   args: [--range, '{pr_range}']
 since: 0.1.0
 ---
@@ -33,7 +33,7 @@ since: 0.1.0
 
 ## Как проверяется
 
-`python scripts/check_commit_msg.py <файл>` (хук `commit-msg`) и `--range origin/main..HEAD` (CI).
+`python tools/check_commit_msg.py <файл>` (хук `commit-msg`) и `--range origin/main..HEAD` (CI).
 
 ## Исключения и особенности проектов
 

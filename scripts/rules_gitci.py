@@ -104,7 +104,7 @@ def _workflows(items: list[dict[str, Any]], project: str, repo_dir: Path, versio
         for i in group:
             name = Path(i["tool"]).name
             args = _args(i, project, arg1="")
-            lines += [f"      - name: {Path(name).stem}", f"        if: github.event_name == '{i.get('when', 'pull_request')}'",
+            lines += [f"      - name: {Path(name).stem}", f"        if: ${{{{ !cancelled() && github.event_name == '{i.get('when', 'pull_request')}' }}}}",
                       f"        run: python {TOOLS_DIR}/{name}" + (f" {args}" if args else "")]
         files[repo_dir / ".github" / "workflows" / f"angainor-{stage}.yml"] = "\n".join(lines) + "\n"
     return files

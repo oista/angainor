@@ -16,6 +16,7 @@
 
 - AGT-4 Имя плана — «Проект: тема» — .cursor/plans/*.plan.md
 - AGT-5 План ссылается на ADR — .cursor/plans/*.plan.md
+- AGT-9 Не ослабляй проверки ради зелёного статуса — .github/workflows/**, .pre-commit-config.yaml, .githooks/**, pyproject.toml, tests/**, **/conftest.py, ruff.toml, mypy.ini, .coveragerc, pytest.ini, setup.cfg, sonar-project.properties
 - DOC-4 Новый термин — в модель или глоссарий — docs/**/*.md
 - DOC-5 Серийные папки: шаблон и индекс — docs/**/*.md
 - DOC-11 Таблицы выровнены — docs/**/*.md
@@ -25,6 +26,7 @@
 - AGT-3 Фиксация диалога и планов — «зафиксируй», «зафиксируй диалог», «зафиксируй планы», «wrap», «export dialog», «сохрани диалог»
 - AGT-6 Следить за CI после push — «проверь CI», «посмотри Actions», «почему упал CI»
 - AGT-7 Серия PR: одна тема на PR — «серия PR», «PR-0»
+- AGT-10 PR маленький и про одно — «разбей PR», «PR слишком большой»
 - AGT-8 Перед коммитом и PR — «подготовь коммит», «подготовь PR», «перед коммитом», «создай PR»
 
 ## Без проверки (пожелания)

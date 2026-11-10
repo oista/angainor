@@ -1,4 +1,4 @@
-"""Тесты scripts/check_commit_msg.py (CI-8)."""
+"""Тесты tools/check_commit_msg.py (CI-8)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import check_commit_msg as ccm  # noqa: E402
 
 

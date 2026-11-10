@@ -1,0 +1,12 @@
+[project]
+name = "angainor"
+version = "0.1.0"
+description = "Architecture Governance And Integrity Norms — Oversight Registry"
+requires-python = ">=3.10"
+dependencies = ["pyyaml", "jsonschema"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

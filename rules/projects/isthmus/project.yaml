@@ -1,0 +1,57 @@
+# Профиль Isthmus: какие правила Angainor включены и с какими параметрами (ADR-0003).
+project: isthmus
+repo: Isthmus          # каталог рабочей копии (--repos-root); GitHub — oista/isthmus
+github: oista/isthmus
+angainor:
+  version: 0.1.0
+always_on_budget_tokens: 900
+git_hooks: githooks    # core.hooksPath=.githooks; рукописных хуков в репозитории больше нет
+plan_prefix: Isthmus   # планы называются «Isthmus: тема»
+
+rules:
+  AGT-1: true
+  AGT-2: true
+  AGT-3:
+    params:
+      export_command: .\scripts\export-cursor-dialog.ps1
+  AGT-4:
+    params:
+      project_name: "`Isthmus`"
+  AGT-5: true
+  AGT-6:
+    params:
+      main_workflows: "`control-hub`, `lightkeeper`, `ops-scripts`, `quality-metrics`, `secret-scan`"
+  AGT-7: true
+  AGT-9: true
+  AGT-10: true
+  AGT-8:
+    params:
+      changelog_note: " (если в изменении есть заметное для пользователя поведение; отдельного changelog в репозитории нет)"
+      check_command: "ruff check, mypy и pytest в каталоге изменённого компонента (control-hub, lightkeeper, metrics), как в .github/workflows"
+      task_link: "ссылка на задачу, если есть"
+      extra: "Версия продукта — git-тег (ADR 0026); файл VERSION не правь."
+  DOC-4:
+    params:
+      glossary: control-hub/docs/glossary.yaml
+      notes: "Морской лор инвентаря (Harbor / Wharf / Berth / Vessel / Cargo) описан в control-hub/docs/wharfs/; продукт, сайт и раздел — по ADR 0004."
+  DOC-5: true
+  DOC-7: true
+  DOC-11:
+    enabled: false
+    reason: В ADR и README Isthmus компактные таблицы без выравнивания; правило Proposed
+  LAY-1:
+    params:
+      gate: "ADR в `docs/adr/`, затем обновление README.md и структуры в нём"
+      allowed_root: "`control-hub/`, `lightkeeper/`, `metrics/`, `pharos-vps/`, `tender/`, `wangate/`, `scripts/`, `docs/`, `.github/`, `.cursor/`, `.vscode/`, `Isthmus.code-workspace`, `README.md`, `sonar-project.properties`"
+      boundaries: ""
+  CI-8: true
+
+environment:
+  commands:
+    hub_lint: ruff check app tests host-helper   # из control-hub/
+    hub_types: mypy app host-helper
+    hub_tests: python -m pytest -q
+    lightkeeper_tests: pytest tests eval -q
+    metrics_tests: python -m pytest metrics/tests -q
+  constraints:
+    - "Образ Hub собирается на wangate (deploy-hub-on-wangate.sh); версия — git describe или .app-version"

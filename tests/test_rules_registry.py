@@ -338,16 +338,16 @@ def test_matcher_only_for_tool_events(root):
     assert any("matcher" in e for e in errors(root))
 
 
-GITCI_ENFORCE = ("[{'event': 'commit-msg', 'tool': 'scripts/check_commit_msg.py', 'args': ['{arg1}']},"
-                 " {'event': 'ci', 'stage': 'commits', 'when': 'pull_request', 'tool': 'scripts/check_commit_msg.py',"
+GITCI_ENFORCE = ("[{'event': 'commit-msg', 'tool': 'tools/check_commit_msg.py', 'args': ['{arg1}']},"
+                 " {'event': 'ci', 'stage': 'commits', 'when': 'pull_request', 'tool': 'tools/check_commit_msg.py',"
                  " 'args': ['--range', '{pr_range}']}]")
 
 
 def gitci_root(root: Path, mode: str | None = None) -> Path:
-    (root / "scripts").mkdir()
-    shutil.copy(REAL / "scripts" / "check_commit_msg.py", root / "scripts" / "check_commit_msg.py")
+    (root / "tools").mkdir()
+    shutil.copy(REAL / "tools" / "check_commit_msg.py", root / "tools" / "check_commit_msg.py")
     path = root / "rules/shared/vcs/CI-8-commits.md"
-    write_rule(root, "rules/shared/vcs/CI-8-commits.md", id="CI-8", title="Коммиты", check="angainor:scripts/check_commit_msg.py")
+    write_rule(root, "rules/shared/vcs/CI-8-commits.md", id="CI-8", title="Коммиты", check="angainor:tools/check_commit_msg.py")
     path.write_text(path.read_text(encoding="utf-8").replace("---\n\n#", f"enforce: {GITCI_ENFORCE}\n---\n\n#", 1), encoding="utf-8")
     write_profile(root, "demo", "  CI-8: true\n", repo="demo")
     if mode:
@@ -408,5 +408,30 @@ def test_ci_requires_stage_and_tool_must_be_stdlib_only(root):
     p = root / "rules/shared/vcs/CI-8-commits.md"
     p.write_text(p.read_text(encoding="utf-8").replace("'stage': 'commits', ", "", 1), encoding="utf-8")
     assert any("stage" in e for e in errors(root))
-    (root / "scripts" / "check_commit_msg.py").write_text("import yaml\n", encoding="utf-8")
+    (root / "tools" / "check_commit_msg.py").write_text("import yaml\n", encoding="utf-8")
     assert any("стандартной библиотеки" in e and "yaml" in e for e in errors(root))
+
+
+def test_quarantine_requires_manifest_with_all_files(root):
+    repos = gitci_root(root)
+    q = repos / "demo" / ".cursor" / "_quarantine" / "2026-11-10"
+    q.mkdir(parents=True)
+    (q / "old-rule.mdc").write_text("x", encoding="utf-8")
+    assert any("нет MANIFEST.md" in e for e in check_rules.run(root, repos)[0])
+    (q / "MANIFEST.md").write_text("---\ndelete_after: manual\n---\n", encoding="utf-8")
+    assert any("old-rule.mdc не описан" in e for e in check_rules.run(root, repos)[0])
+    (q / "MANIFEST.md").write_text("---\n---\n| old-rule.mdc | заменено AGT-4 |\n", encoding="utf-8")
+    assert any("delete_after" in e for e in check_rules.run(root, repos)[0])
+    (q / "MANIFEST.md").write_text("---\ndelete_after: manual\n---\n| old-rule.mdc | заменено AGT-4 |\n", encoding="utf-8")
+    assert not any("_quarantine" in e for e in check_rules.run(root, repos)[0])
+
+
+def test_plan_prefix_from_profile_goes_into_hook_args(root):
+    repos = hook_root(root)
+    prof = root / "rules/projects/demo/project.yaml"
+    prof.write_text(prof.read_text(encoding="utf-8") + "plan_prefix: Demo\n", encoding="utf-8")
+    p = root / "rules/shared/agent/AGT-4-plan.md"
+    p.write_text(p.read_text(encoding="utf-8").replace("'{project}'", "'{plan_prefix}'"), encoding="utf-8")
+    build_rules.main(["--root", str(root), "--projections", "--repos-root", str(repos)])
+    doc = json.loads((repos / "demo" / ".cursor" / "hooks.json").read_text(encoding="utf-8"))
+    assert doc["hooks"]["afterFileEdit"][0]["command"].endswith("--project Demo")

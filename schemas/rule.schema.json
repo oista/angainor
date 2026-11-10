@@ -142,15 +142,15 @@
           },
           "tool": {
             "type": "string",
-            "pattern": "^(tools|scripts)/[a-z0-9_]+\\.py$",
-            "description": "Скрипт из tools/ или scripts/ Angainor; копируется в проект, зависит только от стандартной библиотеки"
+            "pattern": "^tools/[a-z0-9_]+\\.py$",
+            "description": "Скрипт из tools/ Angainor; копируется в проект, зависит только от стандартной библиотеки"
           },
           "args": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "Аргументы; {project}, {arg1} (первый аргумент git-хука), {pr_range} (диапазон коммитов PR в CI)"
+            "description": "Аргументы; {project}, {plan_prefix} (префикс плана из профиля), {arg1} (первый аргумент git-хука), {pr_range} (диапазон коммитов PR в CI)"
           },
           "timeout": {
             "type": "integer",
