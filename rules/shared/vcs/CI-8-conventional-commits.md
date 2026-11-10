@@ -7,6 +7,15 @@ activation: always
 norm:
 - CI-8
 check: angainor:scripts/check_commit_msg.py
+enforce:
+- event: commit-msg
+  tool: scripts/check_commit_msg.py
+  args: ['{arg1}']
+- event: ci
+  stage: commits
+  when: pull_request
+  tool: scripts/check_commit_msg.py
+  args: [--range, '{pr_range}']
 since: 0.1.0
 ---
 

@@ -103,7 +103,7 @@
     },
     "enforce": {
       "type": "array",
-      "description": "Привязка правила к событиям агента (хуки). Инструмент берётся из tools/ Angainor и копируется в проект",
+      "description": "Привязка правила к событиям агента (хуки Cursor), git-хукам и стадиям CI. Инструмент копируется в проект",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -128,7 +128,11 @@
               "afterFileEdit",
               "afterAgentResponse",
               "stop",
-              "preCompact"
+              "preCompact",
+              "pre-commit",
+              "commit-msg",
+              "pre-push",
+              "ci"
             ]
           },
           "matcher": {
@@ -138,15 +142,15 @@
           },
           "tool": {
             "type": "string",
-            "pattern": "^tools/[a-z0-9_]+\\.py$",
-            "description": "Путь к инструменту в репозитории Angainor"
+            "pattern": "^(tools|scripts)/[a-z0-9_]+\\.py$",
+            "description": "Скрипт из tools/ или scripts/ Angainor; копируется в проект, зависит только от стандартной библиотеки"
           },
           "args": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "Аргументы командной строки; {project} заменяется ключом проекта"
+            "description": "Аргументы; {project}, {arg1} (первый аргумент git-хука), {pr_range} (диапазон коммитов PR в CI)"
           },
           "timeout": {
             "type": "integer",
@@ -159,6 +163,18 @@
               "closed"
             ],
             "description": "open — ошибка хука не блокирует агента (по умолчанию)"
+          },
+          "stage": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Для event=ci: стадия, один файл angainor-<stage>.yml на стадию"
+          },
+          "when": {
+            "enum": [
+              "pull_request",
+              "push"
+            ],
+            "description": "Для event=ci: когда запускать (ключ не `on` — в YAML 1.1 это булево значение) (push — в main/master)"
           }
         }
       }
