@@ -1,0 +1,30 @@
+flowchart TB
+    NET(["Интернет"])
+
+    subgraph PUB["public-internet"]
+        PRS["prs · Pharos (VPS)<br/>45.134.218.129<br/>overlay 10.20.20.1<br/>wstunnel · WireGuard · DNS"]
+    end
+
+    subgraph HOME["Дом · LAN 192.168.10.0/24"]
+        WGN["wgn · Wangate<br/>192.168.10.1 · overlay 10.20.20.2<br/>шлюз · DNS · TLS edge"]
+        CNT["cnt · Centurion<br/>192.168.10.64 · overlay 10.20.20.4"]
+        FRM["frm · Forum (app-srv)<br/>192.168.10.140"]
+    end
+
+    LGN["lgn · Legioner (вне дома)<br/>overlay 10.20.20.3"]
+
+    subgraph EMP["employer-isolated"]
+        MXL["mxl · Moexlab<br/>без интернета"]
+    end
+
+    MAIL(["почта: бандл + манифест<br/>источник бандла не подтверждён"])
+
+    NET --- WGN
+    NET --- PRS
+    WGN <-->|"WireGuard"| PRS
+    LGN <-->|"WireGuard"| PRS
+    LGN -.-|"wstunnel при фильтрации<br/>(Nekoray / Throne)"| PRS
+    CNT --- WGN
+    FRM --- WGN
+    CNT -.-|"WG-профиль wireg-homepc,<br/>peer не проверен"| PRS
+    MAIL -.->|"человек переносит"| MXL
