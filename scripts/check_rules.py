@@ -13,7 +13,8 @@
 9. Закреплённая версия Angainor существует как git-тег (если теги есть).
 10. enforce: инструмент из tools/ существует, matcher только у событий инструментов.
 11. enforce: инструмент импортирует только стандартную библиотеку; ci требует stage и when.
-12. С --repos-root: check проектных правил и waiver-ADR существуют в репозитории проекта.
+12. С --repos-root: карантин `.cursor/_quarantine/*/` содержит MANIFEST.md со сроком и описанием каждого файла.
+13. С --repos-root: check проектных правил и waiver-ADR существуют в репозитории проекта.
 
     python scripts/check_rules.py [--repos-root PATH]
 """
@@ -22,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -55,6 +57,28 @@ def tool_import_errors(root: Path, where: str, tool: str) -> list[str]:
             [node.module or ""] if isinstance(node, ast.ImportFrom) and node.level == 0 else []
         bad |= {n.split(".")[0] for n in names if n and n.split(".")[0] not in sys.stdlib_module_names}
     return [f"{where}: enforce: {tool} импортирует не из стандартной библиотеки: {', '.join(sorted(bad))}"] if bad else []
+
+
+def quarantine_errors(repo: Path) -> list[str]:
+    """Карантин старых правил проекта: .cursor/_quarantine/<дата>/ с MANIFEST.md, где названы все файлы.
+
+    Срок удаления (`delete_after`) — тег Angainor или `manual`; просрочка не проверяется.
+    """
+    base = repo / ".cursor" / "_quarantine"
+    errors: list[str] = []
+    for d in sorted(p for p in base.glob("*") if p.is_dir()) if base.is_dir() else []:
+        manifest = d / "MANIFEST.md"
+        where = d.relative_to(repo).as_posix()
+        if not manifest.is_file():
+            errors.append(f"{where}: нет MANIFEST.md")
+            continue
+        text = manifest.read_text(encoding="utf-8")
+        if not re.search(r"^delete_after:\s*\S+", text, re.M):
+            errors.append(f"{where}/MANIFEST.md: нет delete_after (тег Angainor или manual)")
+        for f in sorted(p for p in d.rglob("*") if p.is_file() and p.name != "MANIFEST.md"):
+            if f.name not in text:
+                errors.append(f"{where}: файл {f.name} не описан в MANIFEST.md (заменён / перенесён / отброшен)")
+    return errors
 
 
 def canon_codes_of(root: Path) -> set[str]:
@@ -127,6 +151,7 @@ def run(root: Path = ROOT, repos_root: Path | None = None) -> tuple[list[str], l
             if not repo.is_dir():
                 warnings.append(f"проект {project}: репозиторий {repo} не найден, проверка check/waiver пропущена")
             else:
+                errors += quarantine_errors(repo)
                 for e in eff:
                     chk = e.rule.check
                     if chk and e.rule.scope == f"project:{project}" and not chk.startswith("angainor:") and not (repo / chk).exists():

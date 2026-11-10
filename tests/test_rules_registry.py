@@ -410,3 +410,17 @@ def test_ci_requires_stage_and_tool_must_be_stdlib_only(root):
     assert any("stage" in e for e in errors(root))
     (root / "scripts" / "check_commit_msg.py").write_text("import yaml\n", encoding="utf-8")
     assert any("стандартной библиотеки" in e and "yaml" in e for e in errors(root))
+
+
+def test_quarantine_requires_manifest_with_all_files(root):
+    repos = gitci_root(root)
+    q = repos / "demo" / ".cursor" / "_quarantine" / "2026-11-10"
+    q.mkdir(parents=True)
+    (q / "old-rule.mdc").write_text("x", encoding="utf-8")
+    assert any("нет MANIFEST.md" in e for e in check_rules.run(root, repos)[0])
+    (q / "MANIFEST.md").write_text("---\ndelete_after: manual\n---\n", encoding="utf-8")
+    assert any("old-rule.mdc не описан" in e for e in check_rules.run(root, repos)[0])
+    (q / "MANIFEST.md").write_text("---\n---\n| old-rule.mdc | заменено AGT-4 |\n", encoding="utf-8")
+    assert any("delete_after" in e for e in check_rules.run(root, repos)[0])
+    (q / "MANIFEST.md").write_text("---\ndelete_after: manual\n---\n| old-rule.mdc | заменено AGT-4 |\n", encoding="utf-8")
+    assert not any("_quarantine" in e for e in check_rules.run(root, repos)[0])
